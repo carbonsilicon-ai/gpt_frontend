@@ -21,7 +21,10 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "vite build --mode production",
+    "build:dev": "vite build --mode development",
+    "build:ldap": "vite build --mode ldap",
+    "build:private": "vite build --mode private",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

@@ -19,8 +19,6 @@ declare module 'vue' {
     DataTableViewOptions: typeof import('./../components/DataTable/ViewOptions.vue')['default']
     Error: typeof import('./../components/Error.vue')['default']
     ImagePreview: typeof import('./../components/ImagePreview/ImagePreview.vue')['default']
-    LayoutAsk_button: typeof import('../pages/ask/ask_button.vue')['default']
-    LayoutAsk_Button: typeof import('../pages/ask/ask_button.vue')['default']
     LayoutGPT_Page: typeof import('./../components/Layout/GPT_Page.vue')['default']
     LayoutHeader: typeof import('./../components/Layout/Header.vue')['default']
     LayoutPage: typeof import('./../components/Layout/Page.vue')['default']
