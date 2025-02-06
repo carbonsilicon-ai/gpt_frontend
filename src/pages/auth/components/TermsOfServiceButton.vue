@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 
 <template>
   <Button variant="link" class="px-0 font-normal underline text-muted-foreground">
-    Terms of Service
+    服务条款
   </Button>
 </template>
 

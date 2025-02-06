@@ -1,0 +1,53 @@
+<template>
+  <GPT_Page v-model:isSidebarOpen="isSidebarOpen">
+    <template #sider_header>
+      <sidebar_header />
+    </template>
+    <template #sider_content>
+      <sidebar_content :hasQuery="hasQuery" />
+    </template>
+    <main_list v-model:isSidebarOpen="isSidebarOpen"/>
+  </GPT_Page>
+  <get_all_folder />
+</template>
+
+<script setup lang="ts">
+import GPT_Page from '@/components/Layout/GPT_Page.vue'
+import sidebar_header from './components/sidebar_header.vue'
+import sidebar_content from './components/sidebar_content.vue'
+import main_list from './components/main_list.vue'
+import get_all_folder from '@/pages/ask/components/get_all_folder.vue'
+const isSidebarOpen = ref(true)
+
+import { useRouter, useRoute } from 'vue-router'
+import { useStore } from '@/stores/index.js'
+const store = useStore()
+// 获取当前route
+const route = useRoute()
+const route_query = route.query
+const hasQuery = ref(true)
+
+if (route_query.channel_id) {
+  store.channel_id = route_query.channel_id
+} else {
+  // 如果query没有channel_id
+  if (store.channel_id) {
+    hasQuery.value = true
+    // 设置query
+    const path = `/channels?channel_id=${store.channel_id}`
+    const url = `${window.location.origin}${path}`
+    window.history.pushState({ path }, '', url)
+  } else {
+    hasQuery.value = false
+  }
+}
+if (route_query.closeSider) {
+  isSidebarOpen.value = false
+}
+
+</script>
+
+<route lang="yaml">
+  meta:
+    layout: blank
+</route>

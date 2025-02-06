@@ -61,6 +61,18 @@ export default defineConfig({
       plugins: [tailwind(), autoprefixer()],
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://inplat.drugflow.com/',
+        changeOrigin: true,
+      },
+      '/trans': {
+        target: 'https://inplat.drugflow.com/',
+        changeOrigin: true,
+      }
+    }
+	},
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

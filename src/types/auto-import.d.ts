@@ -66,6 +66,7 @@ declare global {
   const useSidebar: typeof import('../composables/useSidebar')['useSidebar']
   const useSlots: typeof import('vue')['useSlots']
   const useTemplateRef: typeof import('vue')['useTemplateRef']
+  const useVerify: typeof import('../composables/useVerify')['useVerify']
   const watch: typeof import('vue')['watch']
   const watchEffect: typeof import('vue')['watchEffect']
   const watchPostEffect: typeof import('vue')['watchPostEffect']

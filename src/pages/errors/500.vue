@@ -16,6 +16,6 @@ import Error from '@/components/Error.vue'
 </style>
 
 <route lang="yaml">
-  meta:
-    layout: blank
-  </route>
+meta:
+  layout: blank
+</route>

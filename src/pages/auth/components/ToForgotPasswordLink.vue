@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 
 <template>
   <Button variant="link" class="text-muted-foreground" @click="$router.push('/auth/forgot-password')">
-    Forgot password?
+    忘记密码？
   </Button>
 </template>
 
