@@ -13,7 +13,7 @@
           <img src="@/assets/imgs/pdf_large.png" alt="file" class="w-5 h-6" />
           
           <div class="flex-1 min-w-0">
-            <div class="truncate text-xs">{{ file.title }}</div>
+            <div class="truncate text-xs cursor-pointer" @click="open_file(file)">{{ file.title }}</div>
             <div class="flex items-center gap-0.5">
               <span v-if="file.parseStatus === 1" class="text-[10px] text-muted-foreground">
                 解析中 {{ file.parseProgress }}%
@@ -60,7 +60,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Database, Plus, X } from 'lucide-vue-next'
+import { Plus, X } from 'lucide-vue-next'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { TabsContent } from '@/components/ui/tabs'
 import { add_doctokb_api } from '@/api/common.js'
@@ -77,9 +77,15 @@ interface FileItem {
   docId?: string
 }
 
+interface KnowledgeBase {
+  id: string
+  name: string
+}
+
 const props = defineProps<{
   files: FileItem[]
   selectedFiles: FileItem[]
+  selectedKbs: KnowledgeBase[]
 }>()
 
 const emit = defineEmits<{
@@ -88,6 +94,13 @@ const emit = defineEmits<{
 
 const toggleFile = (checked: boolean, file: FileItem) => {
   const currentSelected = [...props.selectedFiles]
+  if (props.selectedKbs.length > 0) {
+    toast({
+      title: '已经选择知识库，不能选择文件',
+      variant: 'destructive',
+    })
+    return
+  }
   if (checked) {
     currentSelected.push(file)
   } else {
@@ -115,5 +128,10 @@ const add_to_kb = async (file: FileItem) => {
       variant: 'destructive',
     })
   }
+}
+
+const open_file = (file: FileItem) => {
+  const url = window.location.origin + '/pdf_viewer?docId=' + file.docId
+  window.open(url, '_blank');
 }
 </script> 

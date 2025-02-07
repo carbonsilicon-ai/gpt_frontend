@@ -32,6 +32,7 @@
         v-if="show_files"
         v-model:files="files"
         v-model:selectedFiles="selectedFiles"
+        :selectedKbs="selectedKbs"
         @update:showUploadDialog="showUploadDialog = $event"
         @update:uploadingFiles="uploadingFiles = $event"
       />
@@ -40,6 +41,7 @@
       <KnowledgeSelector
         v-if="show_knowledge"
         v-model:selectedKbs="selectedKbs"
+        :selectedFiles="selectedFiles"
         :knowledgeFolders="store.knowledge_folders"
       />
       

@@ -25,11 +25,21 @@ interface KnowledgeBase {
   name: string
 }
 
+interface FileItem {
+  title: string
+  size: number
+  parseStatus: number
+  parseProgress: number
+  raw?: File
+  docId?: string
+}
+
 const { toast } = useToast()
 
 const props = defineProps<{
   knowledgeFolders: KnowledgeBase[]
   selectedKbs: KnowledgeBase[]
+  selectedFiles: FileItem[]
 }>()
 
 const emit = defineEmits<{
@@ -38,6 +48,13 @@ const emit = defineEmits<{
 
 const toggleKnowledge = (checked: boolean, knowledge: KnowledgeBase) => {
   const currentSelected = [...props.selectedKbs]
+  if (props.selectedFiles.length > 0) {
+    toast({
+      title: '已经选择文件，不能选择知识库',
+      variant: 'destructive',
+    })
+    return
+  }
   if (checked) {
     if (currentSelected.length < 2) {
       currentSelected.push(knowledge)

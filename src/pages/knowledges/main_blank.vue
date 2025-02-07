@@ -34,7 +34,7 @@
           </Button>
         </div>
 
-        <p class="text-sm text-muted-foreground mb-4">上传资料后即可享受以下功能：</p>
+        <!-- <p class="text-sm text-muted-foreground mb-4">上传资料后即可享受以下功能：</p>
         
         <div class="flex flex-col md:flex-row w-full items-center justify-center gap-4">
           <Card class="w-full h-[170px]">
@@ -66,7 +66,7 @@
               </CardDescription>
             </CardHeader>
           </Card>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

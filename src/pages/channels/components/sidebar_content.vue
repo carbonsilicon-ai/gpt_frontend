@@ -16,7 +16,7 @@
             <div class="absolute right-0 top-0 opacity-0 transition-opacity group-hover:opacity-100">
               <Popover>
                 <PopoverTrigger @click.stop>
-                  <Button variant="ghost" size="icon" class="h-8 w-8 hover:bg-accent">
+                  <Button variant="ghost" size="icon" class="h-6 w-6 bg-white">
                     <MoreHorizontal class="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>

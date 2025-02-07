@@ -103,7 +103,7 @@ const versions = ref([
       <nav class="flex flex-col items-center gap-4 px-2 sm:py-5">
         <a
           @click="handleNavigation('/')"
-          class="group flex h-9 w-9 mb-8 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base p-1"
+          class="group cursor-pointer flex h-9 w-9 mb-8 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base p-1"
         >
           <img src="@/assets/imgs/top_logo.png" alt="logo" class="w-full" />
         </a>
