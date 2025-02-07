@@ -188,15 +188,17 @@ const dislikeFeedback = ref('')
 
 const scrollContainerRef = ref<HTMLElement | null>(null)
 
-const scrollToBottom = (scroll_flag: boolean = false) => {
+const isGenerating = ref(false)
+
+const scrollToBottom = (force: boolean = false) => {
   nextTick(() => {
-    if (scrollContainerRef.value) {
-      // 只有当用户没有主动向上滚动时，才自动滚动到底部
+    if (!scrollContainerRef.value) return
+    
+    if (force) {
       scrollContainerRef.value.scrollTo({
         top: scrollContainerRef.value.scrollHeight,
         behavior: 'smooth'
       })
-  
     }
   })
 }
@@ -269,7 +271,7 @@ const get_questionlist = () => {
               }
               if (event.event == 'message') {
                 if (first_mess) {
-                  // if <======> 只存在一个，则需要再添加一个
+                  isGenerating.value = true
                   if (questionList.value[questionList.value.length - 1].content.split('<======>').length === 2) {
                     questionList.value[questionList.value.length - 1].content += '<======>';
                   }
@@ -325,11 +327,12 @@ const get_questionlist = () => {
                 }
               }
               
-              if(event.data == '<<<end>>>'){
+              if (event.data == '<<<end>>>') {
+                isGenerating.value = false
+                scrollToBottom(true)
                 stop_question(undefined, true)
                 askButtonRef.value?.close_isLoading()
               }
-              scrollToBottom()
             },
             onclose() {
               scrollToBottom()
@@ -587,13 +590,6 @@ onMounted(() => {
 
 watch(() => store.channel_id, () => {
   get_questionlist()
-})
-
-watch(() => questionList.value, () => {
-  scrollToBottom(true)
-}, { 
-  deep: true,
-  flush: 'post'
 })
 
 </script>
