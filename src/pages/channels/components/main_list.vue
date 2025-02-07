@@ -193,8 +193,8 @@ const isGenerating = ref(false)
 const scrollToBottom = (force: boolean = false) => {
   nextTick(() => {
     if (!scrollContainerRef.value) return
-    
-    if (force) {
+    const max_height = 150
+    if (force || (scrollContainerRef.value.scrollHeight - (scrollContainerRef.value.scrollTop + scrollContainerRef.value.clientHeight) < max_height)) {
       scrollContainerRef.value.scrollTo({
         top: scrollContainerRef.value.scrollHeight,
         behavior: 'smooth'
@@ -254,6 +254,7 @@ const get_questionlist = () => {
 
           controller.value = new AbortController()
           let csrfAccessToken = getCookie('csrf_access_token')
+          scrollToBottom(true)
 
           eventSource.value = fetchEventSource(fetchUrl, {
             method: 'POST',
@@ -329,10 +330,10 @@ const get_questionlist = () => {
               
               if (event.data == '<<<end>>>') {
                 isGenerating.value = false
-                scrollToBottom(true)
                 stop_question(undefined, true)
                 askButtonRef.value?.close_isLoading()
               }
+              scrollToBottom()
             },
             onclose() {
               scrollToBottom()
@@ -590,6 +591,9 @@ onMounted(() => {
 
 watch(() => store.channel_id, () => {
   get_questionlist()
+  setTimeout(() => {
+    scrollToBottom(true)
+  }, 600)
 })
 
 </script>
