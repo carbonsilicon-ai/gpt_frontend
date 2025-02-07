@@ -250,7 +250,7 @@ const handleFiles = async (newFiles: File[]) => {
       raw: file
     }
     uploadingFiles.value.push(fileItem)
-    files.value.push(fileItem)
+    files.value.unshift(fileItem)
   }
 
   if (validFiles.length === 0) {
@@ -265,6 +265,8 @@ const handleFiles = async (newFiles: File[]) => {
     const res = await upload_knowledge_api(formData)
     
     if (res.data.success) {
+      show_files.value = true
+      show_knowledge.value = false
       const name_id = res.data.data.name_id
       // Update status for all files
       for (const file of validFiles) {
@@ -282,8 +284,12 @@ const handleFiles = async (newFiles: File[]) => {
           uploadingFileItem.docId = docId
         }
       }
+      // 自动勾选上
+      if (selectedKbs.value.length === 0) {
+        // selectedFiles.value = 当前上传的files
+        selectedFiles.value = uploadingFiles.value
+      }
     } else {
-
       // Mark all files as failed
       for (const file of validFiles) {
         const fileItem = files.value.find(f => f.title === file.name)
