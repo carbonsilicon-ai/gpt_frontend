@@ -4,7 +4,7 @@
       <sidebar_header @search="onSearch" />
     </template>
     <template #sider_content>
-      <sidebar_content :hasQuery="hasQuery" ref="sidebar_content_ref" />
+      <sidebar_content v-model:hasQuery="hasQuery" ref="sidebar_content_ref" />
     </template>
     <main_list class="bg-muted/40" @updateFolder="updateFolder"/>
   </GPT_Page>

@@ -611,7 +611,8 @@ const get_doc_in_folder = async () => {
 }
 
 // watch store.folder_id
-watch(folder_id, () => {
+watch(folder_id, (newVal) => {
+  console.log('newVal', newVal)
   doc_page.value = 1
   get_doc_in_folder()
 })

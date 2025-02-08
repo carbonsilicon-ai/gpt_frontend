@@ -180,6 +180,9 @@ const props = defineProps<{
   hasQuery: boolean
 }>()
 
+const emits = defineEmits(['hasQuery'])
+const changedFolder = ref(false)
+
 const folderLoadMore = () => {
   if(folderPage.value * folderSize.value < folderCount.value){
     folderSize.value += 5
@@ -220,7 +223,7 @@ const getFolderList = async (activeOffset = 0, search: string='') => {
 }
 
 const setDefaultFolder = () => {
-  if(!props.hasQuery){
+  if(!props.hasQuery && !changedFolder.value){
     const defaultFolder = folderList.value.find(item => item.name === '默认知识库')
     if(defaultFolder){
       store.folder_id = defaultFolder.id
@@ -335,6 +338,7 @@ const goFolderList = (item: any) => {
   // 改写route的query
   const path = `/knowledges?folder_id=${store.folder_id}&folder_name=${encodeURIComponent(store.folder_name)}`
   const url = `${window.location.origin}${path}`
+  changedFolder.value = true
   window.history.pushState({ path }, '', url)
 }
 
