@@ -23,7 +23,7 @@
           </Button>
         </div>
         <div class="flex space-x-2">
-          <Select defaultValue="title" v-model="search_type" class="w-24">
+          <!-- <Select defaultValue="title" v-model="search_type" class="w-24">
             <SelectTrigger size="sm" class="w-24">
               <SelectValue placeholder="搜索范围" />
             </SelectTrigger>
@@ -32,7 +32,7 @@
               <SelectItem value="filename">文件名</SelectItem>
               <SelectItem value="journal">期刊名</SelectItem>
             </SelectContent>
-          </Select>
+          </Select> -->
           <div class="relative w-64">
             <Input
               type="text"

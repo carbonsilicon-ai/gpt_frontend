@@ -16,12 +16,10 @@
         >
           <div class="truncate text-sm mb-1">{{ file.title }}</div>
           <div class="text-xs" :class="{
-            'text-muted-foreground': file.parseStatus === 1,
-            'text-success': file.parseStatus === 2,
-            'text-destructive': file.parseStatus === 3
+            'text-muted-foreground': file.progress === 0,
+            'text-success': file.progress === 100
           }">
-            {{ file.parseStatus === 1 ? `${file.parseProgress}%` : 
-               file.parseStatus === 2 ? '完成' : '失败' }}
+            {{ file.progress === 100 ? '完成' : '上传中' }}
           </div>
         </div>
       </div>
@@ -36,9 +34,12 @@ interface FileItem {
   title: string
   size: number
   parseStatus: number
-  parseProgress: number
+  parse_progress: number
+  progress: number
+  progress_texts: string[]
   raw?: File
   docId?: string
+  timer?: any
 }
 
 defineProps<{

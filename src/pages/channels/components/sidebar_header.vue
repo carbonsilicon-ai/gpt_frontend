@@ -7,6 +7,8 @@
         <Input
           class="pl-8"
           placeholder="搜索会话..."
+          v-model="search_value"
+          @keyup.enter="onSearch"
         />
       </div>
     </div>
@@ -16,4 +18,14 @@
 <script setup lang="ts">
 import { Search } from 'lucide-vue-next'
 import { Input } from '@/components/ui/input'
+
+const emit = defineEmits(['search'])
+
+const search_value = ref('')
+
+const onSearch = () => {
+  emit('search', search_value.value)
+}
+
+
 </script>

@@ -1,7 +1,7 @@
 <template>
   <GPT_Page v-model:isSidebarOpen="isSidebarOpen">
     <template #sider_header>
-      <sidebar_header />
+      <sidebar_header @search="onSearch" />
     </template>
     <template #sider_content>
       <sidebar_content :hasQuery="hasQuery" ref="sidebar_content_ref" />
@@ -54,6 +54,11 @@ const updateFolder = () => {
   }
 }
 
+const onSearch = (value: string) => {
+  if (sidebar_content_ref.value) {
+    sidebar_content_ref.value.getFolderList(0, value)
+  }
+}
 
 // const router = useRouter()
 // router.push({ name: 'dashboard' })

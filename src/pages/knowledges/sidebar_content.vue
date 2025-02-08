@@ -187,11 +187,12 @@ const folderLoadMore = () => {
   }
 }
 
-const getFolderList = async (activeOffset = 0) => {
+const getFolderList = async (activeOffset = 0, search: string='') => {
   try {
     const param = {
       page: folderPage.value,
-      size: folderSize.value
+      size: folderSize.value,
+      search: search
     }
     const res = await get_folder_api(param)
     if (res.data.data.items.length === 0) {

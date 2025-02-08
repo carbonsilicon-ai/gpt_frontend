@@ -96,9 +96,12 @@ interface FileItem {
   title: string
   size: number
   parseStatus: number
-  parseProgress: number
+  parse_progress: number
+  progress: number
+  progress_texts: string[]
   raw?: File
   docId?: string
+  timer?: any
 }
 
 interface KnowledgeBase {
@@ -129,7 +132,7 @@ const currentTab = ref('files')
 
 const totalProgress = computed(() => {
   if (uploadingFiles.value.length === 0) return 0
-  const total = uploadingFiles.value.reduce((sum, file) => sum + file.parseProgress, 0)
+  const total = uploadingFiles.value.reduce((sum, file) => sum + file.progress, 0)
   return Math.round(total / uploadingFiles.value.length)
 })
 
@@ -247,6 +250,8 @@ const handleFiles = async (newFiles: File[]) => {
       size: file.size,
       parseStatus: 1,
       parseProgress: 0,
+      progress: 0,
+      progress_texts: [],
       raw: file
     }
     uploadingFiles.value.push(fileItem)
@@ -262,52 +267,69 @@ const handleFiles = async (newFiles: File[]) => {
   formData.append('folder_id', 'folder_for_question_channel')
 
   try {
-    const res = await upload_knowledge_api(formData)
-    
-    if (res.data.success) {
-      show_files.value = true
-      show_knowledge.value = false
-      const name_id = res.data.data.name_id
-      // Update status for all files
-      for (const file of validFiles) {
-        const docId = name_id.find((item: any) => item.name === file.name)?.docId
-        const fileItem = files.value.find(f => f.title === file.name)
-        const uploadingFileItem = uploadingFiles.value.find(f => f.title === file.name)
-        if (fileItem) {
-          fileItem.parseStatus = 2
-          fileItem.parseProgress = 100
-          fileItem.docId = docId
-        }
-        if (uploadingFileItem) {
-          uploadingFileItem.parseStatus = 2
-          uploadingFileItem.parseProgress = 100
-          uploadingFileItem.docId = docId
+    const response = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest()
+      
+      // 监听上传进度
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100
+          // 更新所有正在上传文件的进度
+          validFiles.forEach(file => {
+            const fileItem = uploadingFiles.value.find(f => f.title === file.name)
+            if (fileItem) {
+              fileItem.progress = Math.round(progress)
+            }
+          })
         }
       }
-      // 自动勾选上
-      if (selectedKbs.value.length === 0) {
-        // selectedFiles.value = 当前上传的files
-        selectedFiles.value = uploadingFiles.value
-      }
-    } else {
-      // Mark all files as failed
-      for (const file of validFiles) {
-        const fileItem = files.value.find(f => f.title === file.name)
-        const uploadingFileItem = uploadingFiles.value.find(f => f.title === file.name)
-        if (fileItem) {
-          fileItem.parseStatus = 3
-        }
-        if (uploadingFileItem) {
-          uploadingFileItem.parseStatus = 3
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const response = JSON.parse(xhr.responseText)
+          resolve(response)
+        } else {
+          reject(new Error('Upload failed'))
         }
       }
-      toast({
-        title: "上传失败",
-        description: res.data.message,
-        variant: "destructive"
-      })
+
+      xhr.onerror = () => reject(new Error('Upload failed'))
+
+      xhr.open('POST', '/api/v1/knowledge_base/upload?folder_id=folder_for_question_channel')  // 请替换为实际的上传 API 地址
+      xhr.setRequestHeader('Authorization', `Bearer ${store.token}`)  // 如果需要认证
+      xhr.send(formData)
+    })
+
+    show_files.value = true
+    show_knowledge.value = false
+    const name_id = response.data.name_id
+    // Update status for all files
+    for (const file of validFiles) {
+      const docId = name_id.find((item: any) => item.name === file.name)?.docId
+      const fileItem = files.value.find(f => f.title === file.name)
+      const uploadingFileItem = uploadingFiles.value.find(f => f.title === file.name)
+      if (fileItem) {
+        fileItem.parseStatus = 1
+        fileItem.parse_progress = 0
+        fileItem.progress_texts = []
+        fileItem.docId = docId
+      }
+      if (uploadingFileItem) {
+        uploadingFileItem.parseStatus = 1
+        uploadingFileItem.parse_progress = 0
+        uploadingFileItem.progress_texts = []
+        uploadingFileItem.docId = docId
+      }
     }
-  } catch (error) {
+    watch_status(name_id)
+    showUploadDialog.value = false
+    // 自动勾选上
+    if (selectedKbs.value.length === 0) {
+      // selectedFiles.value = 当前上传的files
+      selectedFiles.value = uploadingFiles.value
+    }
+  } catch (error:any) {
+    console.log(error)
     if (error.response?.status === 403 || error.response?.data?.message === 'Invalid session key') {
       router.push('/auth/sign-in')
       toast({
@@ -339,6 +361,28 @@ const handleFiles = async (newFiles: File[]) => {
   if (uploadingFiles.value.every(f => f.parseStatus === 2)) {
     setTimeout(() => {
       showUploadDialog.value = false
+    }, 1000)
+  }
+}
+
+const watch_status = (datalist:any) => {
+  for (let i = 0; i < datalist.length; i++ ) {
+    const docId = datalist[i].docId
+    const name = datalist[i].name
+    const item = files.value.find(item => item.title === name)
+    item.docId = docId
+    // 启动状态查询 setinterval
+    item.timer = setInterval(() => {
+      get_doc_api(docId).then((doc_res:any) => {
+        const it = files.value.find(item => item.docId === docId)
+        it.parseStatus = doc_res.data.data.parseStatus
+        it.progress_texts = doc_res.data.data.progress_texts
+        it.parse_progress = doc_res.data.data.parse_progress
+        if (doc_res.data.data.parseStatus != 1) {
+          clearInterval(it.timer)
+          it.timer =null
+        }
+      })
     }, 1000)
   }
 }
@@ -399,7 +443,15 @@ const sendQuestion = async () => {
     router.push('/auth/sign-in')
     return
   }
-
+  // 如果parseStatus为1，则不发送
+  if (selectedFiles.value.some(file => file.parseStatus === 1)) {
+    toast({
+      title: "无法发送",
+      description: "文件正在解析中，请等待上传完成",
+      variant: "destructive"
+    })
+    return
+  }
   // Get selected doc IDs
   docIdList.value = selectedFiles.value
         .filter(file => file.parseStatus === 2)

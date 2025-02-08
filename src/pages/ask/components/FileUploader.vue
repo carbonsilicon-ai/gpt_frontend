@@ -1,7 +1,10 @@
 <template>
   <div class="px-3 py-1 bg-muted/30 border-b overflow-y-auto max-h-[130px] min-h-[65px]">
     <TabsContent value="files">
-      <div class="grid grid-cols-3 gap-2">
+      <div v-if="!files.length" class="text-xs text-muted-foreground text-center py-2 mt-4">
+        当前没有附件，点击右下角按钮或者拖拽上传
+      </div>
+      <div v-else class="grid grid-cols-3 gap-2">
         <div v-for="file in files" :key="file.title" 
           class="flex items-center gap-1.5 p-1.5 bg-background rounded-lg border shadow-sm"
         >
@@ -16,7 +19,7 @@
             <div class="truncate text-xs cursor-pointer" @click="open_file(file)">{{ file.title }}</div>
             <div class="flex items-center gap-0.5">
               <span v-if="file.parseStatus === 1" class="text-[10px] text-muted-foreground">
-                解析中 {{ file.parseProgress }}%
+                解析中 {{ file.parse_progress }}%
               </span>
               <div v-else-if="file.parseStatus === 2" class="flex items-center gap-1">
                 <span class="text-[10px] text-success">完成</span>
@@ -72,9 +75,11 @@ interface FileItem {
   title: string
   size: number
   parseStatus: number
-  parseProgress: number
+  parse_progress: number
+  progress_texts: string[]
   raw?: File
   docId?: string
+  timer?: any
 }
 
 interface KnowledgeBase {

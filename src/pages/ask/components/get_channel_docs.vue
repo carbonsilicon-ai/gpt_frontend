@@ -12,9 +12,11 @@ interface FileItem {
   title: string
   size: number
   parseStatus: number
-  parseProgress: number
+  parse_progress: number
+  progress_texts: string[]
   raw?: File
   docId?: string
+  timer?: any
 }
 
 defineProps<{

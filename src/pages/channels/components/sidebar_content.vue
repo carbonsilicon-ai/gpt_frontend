@@ -134,7 +134,11 @@ import {
 const props = defineProps({
   hasQuery: {
     type: Boolean,
-    default: false
+    default: false,
+  },
+  search: {
+    type: String,
+    default: ''
   }
 })
 
@@ -155,10 +159,11 @@ const current_channel_id = ref('')
 const edit_channel_dialog = ref(false)
 
 const router = useRouter()
-const get_channellist = () => {
+const get_channellist = (search: string='') => {
   const param = {
     page: channel_page.value,
-    size: channel_size.value
+    size: channel_size.value,
+    search: search
   }
   get_channellist_api(param).then((res: any) => {
     if (res.data.success == true) {
@@ -292,4 +297,8 @@ const delete_ask = (id: string, index: number, e: Event) => {
 }
 
 get_channellist()
+
+defineExpose({
+  get_channellist
+})
 </script>

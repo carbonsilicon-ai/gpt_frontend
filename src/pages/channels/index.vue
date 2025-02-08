@@ -1,10 +1,10 @@
 <template>
   <GPT_Page v-model:isSidebarOpen="isSidebarOpen">
     <template #sider_header>
-      <sidebar_header />
+      <sidebar_header @search="onSearch" />
     </template>
     <template #sider_content>
-      <sidebar_content :hasQuery="hasQuery" />
+      <sidebar_content ref="sidebar_content_ref" :hasQuery="hasQuery" />
     </template>
     <main_list v-model:isSidebarOpen="isSidebarOpen"/>
   </GPT_Page>
@@ -26,6 +26,7 @@ const store = useStore()
 const route = useRoute()
 const route_query = route.query
 const hasQuery = ref(true)
+const sidebar_content_ref = ref(null)
 
 if (route_query.channel_id) {
   store.channel_id = route_query.channel_id
@@ -43,6 +44,14 @@ if (route_query.channel_id) {
 }
 if (route_query.closeSider) {
   isSidebarOpen.value = false
+}
+
+const search_value = ref('')
+
+const onSearch = (value: string) => {
+  if (sidebar_content_ref.value) {
+    sidebar_content_ref.value.get_channellist(value)
+  }
 }
 
 </script>

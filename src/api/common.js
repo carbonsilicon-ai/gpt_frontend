@@ -35,7 +35,11 @@ export function delete_knowledge_api(params) {
 
 //获取文件夹list
 export function get_folder_api(params) {
-  return request.get(`/api/v1/knowledge_base/folder?page=${params.page}&size=${params.size}`, params)
+  if (params.search) {
+    return request.get(`/api/v1/knowledge_base/folder?page=${params.page}&size=${params.size}&search=${params.search}`, params)
+  } else {
+    return request.get(`/api/v1/knowledge_base/folder?page=${params.page}&size=${params.size}`, params)
+  }
 }
 
 //创建文件夹
@@ -84,7 +88,11 @@ export function count_visit_api() {
 
 //获取频道列表
 export function get_channellist_api(params) {
-  return request.get(`/api/v1/channel?page=${params.page}&size=${params.size}`, params)
+  if (params.search) {
+    return request.get(`/api/v1/channel?page=${params.page}&size=${params.size}&search=${params.search}`, params)
+  } else {
+    return request.get(`/api/v1/channel?page=${params.page}&size=${params.size}`, params)
+  }
 }
 //创建频道
 export function create_channel_api(params) {
