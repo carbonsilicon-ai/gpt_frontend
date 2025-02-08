@@ -4,7 +4,7 @@ import { CirclePlus, GalleryHorizontalEnd, FolderGit2, BookOpenText } from 'luci
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
-import { Zap, LogOut } from 'lucide-vue-next'
+import { Zap, LogOut, FileClock } from 'lucide-vue-next'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
 import { Users2, History } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
@@ -134,7 +134,7 @@ const versions = ref([
                 :class="{ 'bg-gray-900 text-white': router.currentRoute.value.path === '/channels' }"
                 class="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-gray-900 hover:text-white md:h-8 md:w-8 hover:cursor-pointer"
               >
-                <GalleryHorizontalEnd class="h-5 w-5" />
+                <FileClock class="h-5 w-5" />
                 <span class="sr-only">历史会话</span>
               </a>
             </TooltipTrigger>
