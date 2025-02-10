@@ -1,18 +1,20 @@
 <script lang="ts" setup>
 import Sidebar01 from '@/components/AppSidebar/Sidebar01.vue'
-import { CirclePlus, GalleryHorizontalEnd, FolderGit2, BookOpenText } from 'lucide-vue-next'
+import { CirclePlus, FolderGit2, BookOpenText } from 'lucide-vue-next'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Zap, LogOut, FileClock } from 'lucide-vue-next'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/components/ui/tooltip'
-import { Users2, History } from 'lucide-vue-next'
+import { Users2, History, TriangleAlert } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { useToast } from '@/components/ui/toast'
 import { ref } from 'vue'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useStore } from '@/stores/index.js'
 import get_all_folder from '@/pages/ask/components/get_all_folder.vue'
+import { get_webalert_api } from '@/api/common.js'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 const router = useRouter()
 const { toast } = useToast()
@@ -68,6 +70,28 @@ const signout = () => {
     })
   })
 }
+
+const alert_info = ref({
+  show: false,
+  content: '',
+  content_type: 'warning'
+})
+
+const get_webalert = () => {
+  get_webalert_api().then((res: any) => {
+    console.log('home_copy get_webalert_api', res)
+    alert_info.value.show = res.data.data.is_show
+    alert_info.value.content = res.data.data.content
+    alert_info.value.content_type = res.data.data.content_type
+  }).catch((err: Error) => {
+    console.log('home_copy get_webalert_api err', err)
+    alert_info.value.show = false
+    alert_info.value.content = ''
+    alert_info.value.content_type = 'warning'
+  })
+}
+
+get_webalert()
 
 const showChangelogDialog = ref(false)
 
@@ -254,6 +278,15 @@ const versions = ref([
 
   </div>
   <get_all_folder />
+
+  <!-- 顶部居中显示 -->
+  <Alert variant="destructive" v-if="alert_info.show" size="xs" class="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-64 py-1">
+    <TriangleAlert class="w-5 h-5" />
+    <AlertTitle>Error</AlertTitle>
+    <AlertDescription>
+      {{ alert_info.content }}
+    </AlertDescription>
+  </Alert>
   
 </template>
 
