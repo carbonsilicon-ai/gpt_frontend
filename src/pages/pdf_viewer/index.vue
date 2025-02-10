@@ -21,22 +21,34 @@
       </div>
       <div class="w-1 h-full bg-gray-200 cursor-col-resize" @mousedown="startResize"></div>
       <div class="w-1/2 h-full overflow-auto">
-         <div v-if="markdownLoading" class="h-full flex items-center justify-center">
-            <div class="flex flex-col items-center gap-2">
-               <Loader2 class="h-8 w-8 animate-spin" />
-               <p class="text-sm text-muted-foreground">Loading content...</p>
-            </div>
+         <div class="flex justify-between items-center p-2 border-b">
+            <h2 class="text-lg font-semibold">解析结果</h2>
+            <Button variant="default" size="sm" @click="translate_markdown">
+               {{ show_ori_markdown ? '点击翻译' : '返回原文' }}
+            </Button>
          </div>
-         <div v-else-if="markdownError" class="h-full flex items-center justify-center">
-            <div class="flex flex-col items-center gap-2">
-               <AlertCircle class="h-8 w-8 text-destructive" />
-               <p class="text-sm text-destructive">Failed to load content</p>
-               <Button variant="outline" size="sm" @click="get_markdown">
-                  Retry
-               </Button>
+         <Separator />
+         <div v-show="show_ori_markdown">
+            <div v-if="markdownLoading" class="h-full flex items-center justify-center">
+               <div class="flex flex-col items-center gap-2">
+                  <Loader2 class="h-8 w-8 animate-spin" />
+                  <p class="text-sm text-muted-foreground">Loading content...</p>
+               </div>
             </div>
+            <div v-else-if="markdownError" class="h-full flex items-center justify-center">
+               <div class="flex flex-col items-center gap-2">
+                  <AlertCircle class="h-8 w-8 text-destructive" />
+                  <p class="text-sm text-destructive">Failed to load content</p>
+                  <Button variant="outline" size="sm" @click="get_markdown">
+                     Retry
+                  </Button>
+               </div>
+            </div>
+            <markdown-viewer v-else :content="markdown_content" />
          </div>
-         <markdown-viewer v-else :content="markdown_content" />
+         <div v-show="!show_ori_markdown">
+            <markdown-translate-viewer :content="markdown_content" ref="trans_ref"/>
+         </div>
       </div>
    </div>
    </GPT_Page>
@@ -50,6 +62,7 @@ import { useToast } from '@/components/ui/toast'
 import VuePdfEmbed, { useVuePdfEmbed } from 'vue-pdf-embed'
 // import PdfViewer from './components/pdf_viewer.vue'
 import MarkdownViewer from './components/markdown_viewer.vue'
+import MarkdownTranslateViewer from './components/markdown_translate_viewer.vue'
 import { get_doc_markdown_api, open_knowledge_api } from '@/api/common.js'
 import { Loader2, AlertCircle } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
@@ -64,6 +77,18 @@ const pdfLoading = ref(true)
 const pdfError = ref(false)
 const markdownLoading = ref(true)
 const markdownError = ref(false)
+const show_ori_markdown = ref(true)
+const first_translate = ref(true)
+const trans_ref = ref(null)
+
+const translate_markdown = () => {
+  show_ori_markdown.value = !show_ori_markdown.value
+  if (first_translate.value) {
+    first_translate.value = false
+    trans_ref.value.split_content()
+    trans_ref.value.translate_content_continue()
+  }
+}
 
 const get_markdown = () => {
   markdownLoading.value = true

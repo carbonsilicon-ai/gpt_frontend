@@ -118,6 +118,10 @@ const versions = ref([
   },
 ])
 
+const closeAlert = () => {
+  alert_info.value.show = false
+}
+
 </script>
 
 <template>
@@ -279,14 +283,17 @@ const versions = ref([
   </div>
   <get_all_folder />
 
-  <!-- 顶部居中显示 -->
-  <Alert variant="destructive" v-if="alert_info.show" size="xs" class="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-64 py-1">
-    <TriangleAlert class="w-5 h-5" />
-    <AlertTitle>Error</AlertTitle>
-    <AlertDescription>
-      {{ alert_info.content }}
-    </AlertDescription>
-  </Alert>
+    <Button 
+      size="sm" 
+      v-if="alert_info.show" 
+      class="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-64 py-1 flex items-center justify-center gap-2"
+      style="background-color: #e88100;"
+      @click="closeAlert"
+    >
+      <TriangleAlert class="w-4 h-4" />
+      <span class="flex-1 text-center">{{ alert_info.content }}</span>
+      <span class="ml-2">×</span>
+    </Button>
   
 </template>
 

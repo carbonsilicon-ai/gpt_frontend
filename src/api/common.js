@@ -194,3 +194,7 @@ export function add_doctokb_api(params) {
 export function get_queue_info(question_id) {
   return request.get('/new_api/v1/channel/queue_info?question_id=' + question_id)
 }
+
+export function translate_content_api(params) {
+  return request.post('/api/v1/knowledge_base/translate', params)
+}
