@@ -1,23 +1,27 @@
 <template>
   <div class="flex flex-col h-screen bg-muted/40">
     <!-- Main content area with flex-grow to push button to bottom -->
-    <div class="flex-grow w-full px-4 md:px-8 py-6 flex items-center">
+    <div class="w-full px-4 md:px-8 py-6 my-auto">
       <div class="max-w-4xl mx-auto">
         <div class="text-[#162448]">
           <div class="flex flex-col items-center">
-            <div class="text-lg">👋 Hi, {{ store.username }}</div>
-            <div v-if="store.if_ldap" class="mt-2 text-2xl font-medium">
-              您好！我是齐鲁大脑，有什么问题我们随时交流
+            <div v-if="store.if_ldap" class="mt-2 text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              齐鲁大脑
             </div>
-            <div v-else class="mt-2 text-2xl font-medium">
-              我是SciGPT，您的科研助理。有什么问题我们随时交流
-            </div>
-            <div class="text-sm text-muted-foreground mt-2">
-              我可以帮助您解读文献、回答问题、提供科研建议等。
+            <div v-else class="mt-2 text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              SciGPT
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mt-6 w-full max-w-4xl">
-              <Card class="rounded-2xl hover:shadow-md transition-shadow">
+            <!-- Moved ask_button here -->
+            <div class="w-full mt-12">
+              <div class="max-w-4xl mx-auto">
+                <ask_button :docIds="props.docIds" height="high"/>
+              </div>
+            </div>
+
+            <!-- Cards moved below the button -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mt-8 w-full max-w-4xl">
+              <Card class="rounded-2xl shadow-none">
                 <CardContent class="pt-6">
                   <div class="w-[64px] h-[64px] bg-accent rounded-xl p-2">
                     <svg fill="#8B00FF" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -31,7 +35,7 @@
                 </CardContent>
               </Card>
 
-              <Card class="rounded-2xl hover:shadow-md transition-shadow">
+              <Card class="rounded-2xl shadow-none">
                 <CardContent class="pt-6">
                   <div class="w-[64px] h-[64px] bg-accent rounded-xl p-2">
                     <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -43,7 +47,7 @@
                 </CardContent>
               </Card>
 
-              <Card class="rounded-2xl hover:shadow-md transition-shadow">
+              <Card class="rounded-2xl shadow-none">
                 <CardContent class="pt-6">
                   <div class="w-[64px] h-[64px] bg-accent rounded-xl p-2">
                     <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -57,13 +61,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Fixed bottom button -->
-    <div class="w-full px-4 md:px-8 py-4">
-      <div class="max-w-4xl mx-auto">
-        <ask_button :docIds="props.docIds" />
       </div>
     </div>
   </div>

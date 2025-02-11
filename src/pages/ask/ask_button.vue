@@ -26,7 +26,10 @@
       @remove-knowledge="removeKnowledge"
     />
 
-    <div class="shadow relative overflow-hidden rounded-xl border bg-background focus-within:ring-1 focus-within:ring-ring">
+    <div 
+      class="relative overflow-hidden rounded-xl border bg-background focus-within:ring-1 focus-within:ring-ring"
+      style="box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);"
+    >
       <!-- File uploader component -->
       <FileUploader
         v-if="show_files"
@@ -52,6 +55,7 @@
         :isLoading="isLoading"
         :isOnline="isOnline"
         v-model:searchType="searchType"
+        :height="props.height"
         @submit="handleSubmit"
         @stop="handleStop"
         @toggle-network="toggleNetwork"
@@ -145,6 +149,10 @@ const props = defineProps({
   docIds: {
     type: Array as PropType<string[]>,
     default: () => []
+  },
+  height: {
+    type: String,
+    default: 'normal'
   }
 })
 

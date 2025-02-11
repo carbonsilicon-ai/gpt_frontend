@@ -7,7 +7,8 @@
       @compositionstart="isComposing = true"
       @compositionend="isComposing = false"
       placeholder="输入您的问题..."
-      class="min-h-12 resize-none border-0 p-3 shadow-none focus-visible:ring-0"
+      class="resize-none border-0 p-3 shadow-none focus-visible:ring-0"
+      :class="{'min-h-[100px]': props.height === 'high', 'min-h-12': props.height === 'normal'}"
       @keydown="handleKeyDown"
       @paste="handlePaste"
       :disabled="isLoading"
@@ -86,6 +87,7 @@ const props = defineProps<{
   isLoading: boolean
   isOnline: boolean
   searchType: string
+  height: string
 }>()
 
 const emit = defineEmits<{

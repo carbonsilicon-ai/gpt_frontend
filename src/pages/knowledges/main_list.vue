@@ -85,7 +85,7 @@
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell class="py-3 min-w-24">
+                  <TableCell class="py-3 w-24">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
@@ -108,8 +108,9 @@
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell class="py-3 text-gray-500">{{ new Date(file.createTime).toLocaleDateString() }}</TableCell>
-                  <TableCell class="py-3">
+                  <TableCell class="py-3 text-gray-500 w-32">
+                    {{ new Date(file.createTime).toLocaleDateString() }}</TableCell>
+                  <TableCell class="py-3 w-24">
                     <div class="flex space-x-1">
                       <TooltipProvider>
                         <Tooltip>
