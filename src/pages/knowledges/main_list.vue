@@ -85,7 +85,7 @@
                       </Tooltip>
                     </TooltipProvider>
                   </TableCell>
-                  <TableCell class="py-3">
+                  <TableCell class="py-3 min-w-24">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>

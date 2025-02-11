@@ -290,7 +290,7 @@ const closeAlert = () => {
     <Button 
       size="sm" 
       v-if="alert_info.show" 
-      class="fixed top-0 left-1/2 -translate-x-1/2 z-50 w-64 py-1 flex items-center justify-center gap-2"
+      class="fixed top-0 left-1/2 -translate-x-1/2 z-50 py-1 flex items-center justify-center gap-2"
       style="background-color: #e88100;"
       @click="closeAlert"
     >
