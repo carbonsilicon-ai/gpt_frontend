@@ -6,7 +6,7 @@
     v-html="marked.render(trans_content)"
   ></div>
   <!-- 显示按钮 翻译中或者翻译更多 -->
-  <div class="flex justify-center">
+  <div class="flex justify-center mb-2">
     <Button size="sm" v-if="is_translating" @click="translate_content_continue">翻译中...</Button>
     <Button size="sm" v-else @click="translate_content_continue">{{ end_translating ? '翻译完成' : '翻译更多' }}</Button>
   </div>

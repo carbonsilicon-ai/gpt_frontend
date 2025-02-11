@@ -1,56 +1,56 @@
 <template>
    <GPT_Page>
-   <div class="h-[100vh] w-[calc(100vw-3.5rem)] flex">
-      <div class="w-1/2 h-full overflow-auto">
-         <div v-if="pdfLoading" class="h-full flex items-center justify-center">
-            <div class="flex flex-col items-center gap-2">
-               <Loader2 class="h-8 w-8 animate-spin" />
-               <p class="text-sm text-muted-foreground">Loading PDF...</p>
-            </div>
-         </div>
-         <div v-else-if="pdfError" class="h-full flex items-center justify-center">
-            <div class="flex flex-col items-center gap-2">
-               <AlertCircle class="h-8 w-8 text-destructive" />
-               <p class="text-sm text-destructive">Failed to load PDF</p>
-               <Button variant="outline" size="sm" @click="download_pdf">
-                  Retry
-               </Button>
-            </div>
-         </div>
-         <VuePdfEmbed v-else :source="onw_doc" v-if="onw_doc" />
-      </div>
-      <div class="w-1 h-full bg-gray-200 cursor-col-resize" @mousedown="startResize"></div>
-      <div class="w-1/2 h-full overflow-auto">
-         <div class="flex justify-between items-center p-2 border-b">
-            <h2 class="text-lg font-semibold">解析结果</h2>
-            <Button variant="default" size="sm" @click="translate_markdown">
-               {{ show_ori_markdown ? '点击翻译' : '返回原文' }}
-            </Button>
-         </div>
-         <Separator />
-         <div v-show="show_ori_markdown">
-            <div v-if="markdownLoading" class="h-full flex items-center justify-center">
+      <div class="h-[100vh] w-[calc(100vw-3.5rem)] flex">
+         <div class="w-1/2 h-full overflow-auto">
+            <div v-if="pdfLoading" class="h-full flex items-center justify-center">
                <div class="flex flex-col items-center gap-2">
                   <Loader2 class="h-8 w-8 animate-spin" />
-                  <p class="text-sm text-muted-foreground">Loading content...</p>
+                  <p class="text-sm text-muted-foreground">Loading PDF...</p>
                </div>
             </div>
-            <div v-else-if="markdownError" class="h-full flex items-center justify-center">
+            <div v-else-if="pdfError" class="h-full flex items-center justify-center">
                <div class="flex flex-col items-center gap-2">
                   <AlertCircle class="h-8 w-8 text-destructive" />
-                  <p class="text-sm text-destructive">Failed to load content</p>
-                  <Button variant="outline" size="sm" @click="get_markdown">
+                  <p class="text-sm text-destructive">Failed to load PDF</p>
+                  <Button variant="outline" size="sm" @click="download_pdf">
                      Retry
                   </Button>
                </div>
             </div>
-            <markdown-viewer v-else :content="markdown_content" />
+            <VuePdfEmbed v-else :source="onw_doc" v-if="onw_doc" />
          </div>
-         <div v-show="!show_ori_markdown">
-            <markdown-translate-viewer :content="markdown_content" ref="trans_ref"/>
+         <div class="w-1 h-full bg-gray-200 cursor-col-resize" @mousedown="startResize"></div>
+         <div class="w-1/2 h-full overflow-auto">
+            <div class="flex justify-between items-center p-2 border-b">
+               <h2 class="text-lg font-semibold">解析结果</h2>
+               <Button variant="default" size="sm" @click="translate_markdown">
+                  {{ show_ori_markdown ? '点击翻译' : '返回原文' }}
+               </Button>
+            </div>
+            <Separator />
+            <div v-show="show_ori_markdown">
+               <div v-if="markdownLoading" class="h-full flex items-center justify-center">
+                  <div class="flex flex-col items-center gap-2">
+                     <Loader2 class="h-8 w-8 animate-spin" />
+                     <p class="text-sm text-muted-foreground">Loading content...</p>
+                  </div>
+               </div>
+               <div v-else-if="markdownError" class="h-full flex items-center justify-center">
+                  <div class="flex flex-col items-center gap-2">
+                     <AlertCircle class="h-8 w-8 text-destructive" />
+                     <p class="text-sm text-destructive">Failed to load content</p>
+                     <Button variant="outline" size="sm" @click="get_markdown">
+                        Retry
+                     </Button>
+                  </div>
+               </div>
+               <markdown-viewer v-else :content="markdown_content" />
+            </div>
+            <div v-show="!show_ori_markdown">
+               <markdown-translate-viewer :content="markdown_content" ref="trans_ref"/>
+            </div>
          </div>
       </div>
-   </div>
    </GPT_Page>
 </template>
 

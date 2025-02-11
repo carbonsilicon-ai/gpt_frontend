@@ -134,4 +134,8 @@ const handlePaste = (e: ClipboardEvent) => {
   const newValue = props.messageText.substring(0, start) + cleanedText + props.messageText.substring(end)
   emit('update:messageText', newValue)
 }
+
+defineExpose({
+  searchTypeOwn
+})
 </script> 

@@ -14,7 +14,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useStore } from '@/stores/index.js'
 import get_all_folder from '@/pages/ask/components/get_all_folder.vue'
 import { get_webalert_api } from '@/api/common.js'
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 const router = useRouter()
 const { toast } = useToast()
@@ -96,6 +95,11 @@ get_webalert()
 const showChangelogDialog = ref(false)
 
 const versions = ref([
+  {
+    'version': 'v0.3.0', 
+    'date': '2025-02-10', 
+    'content': ['前端页面更新', '支持deepseek r1模型', '搜索服务升级']
+  },
   {
     'version': 'v0.2.0', 
     'date': '2025-01-01', 

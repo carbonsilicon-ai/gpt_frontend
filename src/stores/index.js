@@ -32,7 +32,11 @@ export const useStore = defineStore('status', {
     files_list: [],
     change_to_question_page: false,
     docNameSelectList: [],
-    now_knowledge_list: []
+    now_knowledge_list: [],
+    docIdList: [],
+    selectedKbs: [],
+    isOnline: true,
+    searchType: 'all'
   }),
   actions: {
     increment() {

@@ -6,7 +6,7 @@
     <template #sider_content>
       <sidebar_content ref="sidebar_content_ref" :hasQuery="hasQuery" />
     </template>
-    <main_list v-model:isSidebarOpen="isSidebarOpen"/>
+    <main_list v-model:isSidebarOpen="isSidebarOpen" ref="main_list_ref"/>
   </GPT_Page>
   <get_all_folder />
 </template>
@@ -45,14 +45,19 @@ if (route_query.channel_id) {
 if (route_query.closeSider) {
   isSidebarOpen.value = false
 }
-
-const search_value = ref('')
+const main_list_ref = ref(null)
 
 const onSearch = (value: string) => {
   if (sidebar_content_ref.value) {
     sidebar_content_ref.value.get_channellist(value)
   }
 }
+
+onMounted(() => {
+  if (route_query.closeSider) {
+    main_list_ref.value.recover_params(route_query)
+  }
+})
 
 </script>
 

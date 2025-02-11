@@ -27,7 +27,8 @@
                 <div class="prose max-w-none dark:prose-invert prose-pre:bg-gray-700 prose-pre:border prose-pre:border-border prose-pre:rounded-lg 
                             prose-table:border prose-table:border-collapse prose-td:border prose-td:border-border prose-td:p-2
                             prose-th:border prose-th:border-border prose-th:p-2 prose-th:bg-muted/50
-                            prose-a:bg-primary/10 prose-a:px-1 prose-a:rounded-md prose-a:text-primary prose-a:cursor-pointer">
+                            prose-a:bg-primary/10 prose-a:px-1 prose-a:rounded-md prose-a:text-primary prose-a:cursor-pointer
+                            prose-hr:mt-8 prose-hr:mb-8">
                   <div v-if="item.content" 
                     :id="'question_' + index"
                     class="text-sm text-foreground leading-[2]"
@@ -39,23 +40,29 @@
                   </div>
                 </div>
                 <!-- Action buttons -->
-                <div class="flex justify-end gap-2 py-2 border-t">
-                  <button class="p-2 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors" @click="copyContent('question_'+ index)">
-                    <Copy class="h-4 w-4" />
-                  </button>
-                  <button class="p-2 hover:bg-muted rounded-md transition-colors" 
-                    :class="item.effect === '1' ? 'text-yellow-500' : 'text-muted-foreground hover:text-foreground'"
-                    @click="likeAnswer(item)">
-                    <ThumbsUp class="h-4 w-4" :fill="item.effect === '1' ? 'currentColor' : 'none'" />
-                  </button>
-                  <button class="p-2 hover:bg-muted rounded-md transition-colors"
-                    :class="item.effect === '2' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'"
-                    @click="dislikeDialog(item)">
-                    <ThumbsDown class="h-4 w-4" :fill="item.effect === '2' ? 'currentColor' : 'none'" />
-                  </button>
-                  <button class="p-2 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors" @click="showDeleteDialog(item)">
-                    <Trash2 class="h-4 w-4" />
-                  </button>
+                <div class="flex justify-between items-center gap-2 py-2 border-t">
+                  <div v-if="item.answerStatus === 3" class="text-sm text-destructive">
+                    回答已停止
+                  </div>
+                  <div v-else class="flex-1"></div>
+                  <div class="flex gap-2">
+                    <button class="p-2 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors" @click="copyContent('question_'+ index)">
+                      <Copy class="h-4 w-4" />
+                    </button>
+                    <button class="p-2 hover:bg-muted rounded-md transition-colors" 
+                      :class="item.effect === '1' ? 'text-yellow-500' : 'text-muted-foreground hover:text-foreground'"
+                      @click="likeAnswer(item)">
+                      <ThumbsUp class="h-4 w-4" :fill="item.effect === '1' ? 'currentColor' : 'none'" />
+                    </button>
+                    <button class="p-2 hover:bg-muted rounded-md transition-colors"
+                      :class="item.effect === '2' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'"
+                      @click="dislikeDialog(item)">
+                      <ThumbsDown class="h-4 w-4" :fill="item.effect === '2' ? 'currentColor' : 'none'" />
+                    </button>
+                    <button class="p-2 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors" @click="showDeleteDialog(item)">
+                      <Trash2 class="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -65,7 +72,11 @@
     </div>
 
     <div class="flex-shrink-0 max-w-4xl mx-auto w-full px-8 bg-muted/40">
-      <ask_button @get_questionlist="get_questionlist" @closeSider="closeSider" @stop="stop_question(undefined, true)" ref="askButtonRef" />
+      <ask_button 
+        @get_questionlist="get_questionlist" 
+        @closeSider="closeSider" 
+        @stop="stop_question(undefined, true)" ref="askButtonRef" 
+      />
     </div>
 
     <!-- Delete confirmation dialog -->
@@ -172,7 +183,8 @@ interface questionListType {
   intends: number,
   kb_ids: string[],
   question: string,
-  search_type: string
+  search_type: string,
+  if_search_online: boolean
 }
 
 defineProps<{
@@ -190,7 +202,20 @@ const scrollContainerRef = ref<HTMLElement | null>(null)
 
 const isGenerating = ref(false)
 
-const scrollToBottom = (force: boolean = false) => {
+// 添加节流函数
+const throttle = (fn: Function, delay: number) => {
+  let lastTime = 0
+  return (...args: any[]) => {
+    const now = Date.now()
+    if (now - lastTime >= delay) {
+      fn.apply(null, args)
+      lastTime = now
+    }
+  }
+}
+
+// 修改后的 scrollToBottom 函数
+const scrollToBottom = throttle((force: boolean = false) => {
   nextTick(() => {
     if (!scrollContainerRef.value) return
     const max_height = 150
@@ -201,7 +226,7 @@ const scrollToBottom = (force: boolean = false) => {
       })
     }
   })
-}
+}, 2000) // 100ms 的节流延迟
 
 const controller = ref<AbortController | null>(null)
 const eventSource = ref<EventSource | null>(null)
@@ -238,7 +263,8 @@ const get_questionlist = () => {
                 knowledgeCSAIDefault: store.knowledgeCSAIDefault,
                 client: store.llm_select,
                 kb_ids: item?.kb_ids,
-                search_type: item?.search_type
+                search_type: item?.search_type,
+                if_search_online: item?.if_search_online
               }
             }
           })
@@ -379,7 +405,9 @@ const stop_question = (channel_id: string | undefined, need_update: boolean = tr
     .then((res: any) => {
       askButtonRef.value?.close_isLoading()
       if (need_update) {
-        get_questionlist()
+        setTimeout(() => {
+          get_questionlist()
+        }, 300)
       }
       try {
         console.log('stop_question_api ask_button_ref')
@@ -577,6 +605,10 @@ const handleDelete = () => {
   }
 }
 
+const recover_params = (params: any) => {
+  askButtonRef.value?.recover_params(params)
+}
+
 const emits = defineEmits<{
   'update:isSidebarOpen': [payload: boolean]
 }>()
@@ -594,6 +626,10 @@ watch(() => store.channel_id, () => {
   setTimeout(() => {
     scrollToBottom(true)
   }, 600)
+})
+
+defineExpose({
+  recover_params
 })
 
 </script>

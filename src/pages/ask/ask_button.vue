@@ -47,6 +47,7 @@
       
       <!-- Message input component -->
       <MessageInput
+        ref="message_input_ref"
         v-model:messageText="messageText"
         :isLoading="isLoading"
         :isOnline="isOnline"
@@ -469,6 +470,7 @@ const sendQuestion = async () => {
       knowledgeCSAIDefault: false,
       client: 0, // TODO: Add LLM selection if needed
       kb_ids: selectedKbs.value.map(kb => kb.id),
+      if_search_online: isOnline.value,
       search_type: searchType.value // 'all'：全网搜索，'academic'：学术搜索
     }
 
@@ -478,6 +480,9 @@ const sendQuestion = async () => {
     if (res.data.success) {
       // Store channel info in global store
       store.docIdList = docIdList.value
+      store.selectedKbs = selectedKbs.value
+      store.isOnline = isOnline.value
+      store.searchType = searchType.value
       store.question = messageText.value
 
       // Clear state
@@ -542,7 +547,10 @@ const handleSubmit = async () => {
     messageText.value = ''
     // 判断当前route是否是/channels
     if (router.currentRoute.value.path !== '/channels') {
-      router.push('/channels?channel_id=' + channel_id.value + '&closeSider=true')
+      router.push(
+        '/channels?channel_id=' + channel_id.value + 
+        '&closeSider=true'
+      )
     } else {
       // 关闭侧边栏
       emit('closeSider')
@@ -598,13 +606,23 @@ const open_isLoading = () => {
   isLoading.value = true
 }
 
+const message_input_ref = ref(null)
+const recover_params = (params: any) => {
+  update_docs(store.docIdList)
+  selectedKbs.value = store.selectedKbs
+  searchType.value = store.searchType
+  message_input_ref.value.searchTypeOwn = store.searchType
+  isOnline.value = store.isOnline
+}
+
 const close_isLoading = () => {
   isLoading.value = false
 }
 
 defineExpose({
   open_isLoading,
-  close_isLoading
+  close_isLoading,
+  recover_params
 })
 
 </script>
