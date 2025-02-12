@@ -22,62 +22,22 @@
                 </PopoverTrigger>
                 <PopoverContent class="w-48 p-0">
                   <div class="flex flex-col">
-                    <Dialog :open="edit_channel_dialog">
-                      <DialogTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          class="flex items-center justify-start px-3 py-2 transition-colors hover:bg-accent"
-                          @click="edit_ask(item, index, $event)"
-                        >
-                          <Edit class="mr-2 h-4 w-4" />
-                          重命名
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>重命名会话</DialogTitle>
-                        </DialogHeader>
-                        <div class="py-4">
-                          <input 
-                            type="text"
-                            class="w-full px-3 py-2 border rounded-md"
-                            v-model="editFormChannel.channel_name"
-                            placeholder="请输入新名称"
-                            @keyup.enter="submit_edit_channel"
-                          />
-                        </div>
-                        <DialogFooter>
-                          <Button variant="ghost" @click="edit_channel_dialog = false">取消</Button>
-                          <Button @click="submit_edit_channel">确认</Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button 
-                          variant="ghost"
-                          class="flex items-center justify-start px-3 py-2 text-destructive transition-colors hover:bg-accent hover:text-destructive"
-                          @click.stop
-                        >
-                          <Trash class="mr-2 h-4 w-4" />
-                          删除
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>确认删除</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            您确定删除此会话记录吗？
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>取消</AlertDialogCancel>
-                          <AlertDialogAction @click="delete_ask(item.id, index, $event)">
-                            确认
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button 
+                      variant="ghost" 
+                      class="flex items-center justify-start px-3 py-2 transition-colors hover:bg-accent"
+                      @click="edit_ask(item, index, $event)"
+                    >
+                      <Edit class="mr-2 h-4 w-4" />
+                      重命名
+                    </Button>
+                    <Button 
+                      variant="ghost"
+                      class="flex items-center justify-start px-3 py-2 text-destructive transition-colors hover:bg-accent hover:text-destructive"
+                      @click="openDeleteDialog(item.id, index, $event)"
+                    >
+                      <Trash class="mr-2 h-4 w-4" />
+                      删除
+                    </Button>
                   </div>
                 </PopoverContent>
               </Popover>
@@ -88,14 +48,52 @@
               <Calendar class="h-3.5 w-3.5" />
               <span>{{ new Date(item.createTime).toLocaleDateString() }}</span>
             </div>
-            
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  
+  <Dialog v-model:open="edit_channel_dialog">
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>重命名会话</DialogTitle>
+      </DialogHeader>
+      <div class="py-4">
+        <input 
+          type="text"
+          class="w-full px-3 py-2 border rounded-md"
+          v-model="editFormChannel.channel_name"
+          placeholder="请输入新名称"
+          maxlength="50"
+          @keydown.enter.prevent="handleEnterKey"
+          @compositionstart="isComposing = true"
+          @compositionend="isComposing = false"
+        />
+      </div>
+      <DialogFooter>
+        <Button variant="ghost" @click="edit_channel_dialog = false">取消</Button>
+        <Button @click="submit_edit_channel">确认</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+
+  <AlertDialog v-model:open="delete_dialog">
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle>确认删除</AlertDialogTitle>
+        <AlertDialogDescription>
+          您确定删除此会话记录吗？
+        </AlertDialogDescription>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        <AlertDialogCancel>取消</AlertDialogCancel>
+        <AlertDialogAction @click="confirmDelete">
+          确认
+        </AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
 </template>
 
 <script setup lang="ts">
@@ -159,7 +157,7 @@ const current_channel_id = ref('')
 const edit_channel_dialog = ref(false)
 
 const router = useRouter()
-const get_channellist = (search: string='') => {
+const get_channellist = (search: string='', set_default_channel: boolean=false) => {
   const param = {
     page: channel_page.value,
     size: channel_size.value,
@@ -169,7 +167,7 @@ const get_channellist = (search: string='') => {
     if (res.data.success == true) {
       ask_list.value = res.data.data.items
       ask_count.value = res.data.data.total
-      setDefaultChannel()
+      setDefaultChannel(set_default_channel)
     } else {
       useToast().toast({
         variant: "destructive",
@@ -196,12 +194,15 @@ const get_channellist = (search: string='') => {
   })
 }
 
-const setDefaultChannel = () => {
+const setDefaultChannel = (set_default_channel: boolean=false) => {
   if(!props.hasQuery){
     const defaultChannel = ask_list.value[0]
     if(defaultChannel){
       store.channel_id = defaultChannel.id
     }
+  }
+  if(set_default_channel){
+    store.channel_id = ask_list.value[0].id
   }
 }
 
@@ -261,6 +262,20 @@ const channel_load_more = () => {
   }
 }
 
+const delete_dialog = ref(false)
+const pending_delete = ref({ id: '', index: -1 })
+
+const openDeleteDialog = (id: string, index: number, e: Event) => {
+  e.stopPropagation()
+  pending_delete.value = { id, index }
+  delete_dialog.value = true
+}
+
+const confirmDelete = () => {
+  delete_ask(pending_delete.value.id, pending_delete.value.index, new Event('click'))
+  delete_dialog.value = false
+}
+
 const delete_ask = (id: string, index: number, e: Event) => {
   e.stopPropagation()
   
@@ -272,12 +287,7 @@ const delete_ask = (id: string, index: number, e: Event) => {
           title: "Success",
           description: "会话记录删除成功",
         })
-        get_channellist()
-        if (id === store.channel_id) {
-          ask_active.value = -1
-          store.channel_id = ''
-          store.main_status = 1
-        }
+        get_channellist('', true)
       } else {
         toast({
           variant: "destructive",
@@ -293,6 +303,14 @@ const delete_ask = (id: string, index: number, e: Event) => {
       title: "Error",
       description: "删除失败"
     })
+  }
+}
+
+const isComposing = ref(false)
+
+const handleEnterKey = (e: KeyboardEvent) => {
+  if (!isComposing.value) {
+    submit_edit_channel()
   }
 }
 

@@ -29,6 +29,10 @@
     <div 
       class="relative overflow-hidden rounded-xl border bg-background focus-within:ring-1 focus-within:ring-ring"
       style="box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);"
+      @dragover.prevent="handleDragOver"
+      @dragleave.prevent="handleDragLeave" 
+      @drop.prevent="handleDrop"
+      :class="{ 'drag-over': isDragging }"
     >
       <!-- File uploader component -->
       <FileUploader
@@ -55,10 +59,12 @@
         :isLoading="isLoading"
         :isOnline="isOnline"
         v-model:searchType="searchType"
+        v-model:isThinking="isThinking"
         :height="props.height"
         @submit="handleSubmit"
         @stop="handleStop"
         @toggle-network="toggleNetwork"
+        @toggle-thinking="toggleThinking"
         @file-upload="handleFileUpload"
       />
 
@@ -89,7 +95,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/components/ui/toast'
 import { useStore } from '@/stores/index.js'
-import { upload_knowledge_api, create_channel_api, create_gpt_question_api, get_doc_api } from '@/api/common.js'
+import { upload_knowledge_api, check_folder_api, create_channel_api, create_gpt_question_api, get_doc_api } from '@/api/common.js'
 
 import FileUploader from './components/FileUploader.vue'
 import KnowledgeSelector from './components/KnowledgeSelector.vue'
@@ -134,6 +140,8 @@ const selectedFiles = ref<FileItem[]>([])
 const showUploadDialog = ref(false)
 const uploadingFiles = ref<FileItem[]>([])
 const currentTab = ref('files')
+const isThinking = ref(true)
+const isDragging = ref(false)
 
 const totalProgress = computed(() => {
   if (uploadingFiles.value.length === 0) return 0
@@ -143,6 +151,10 @@ const totalProgress = computed(() => {
 
 const toggleNetwork = () => {
   isOnline.value = !isOnline.value
+}
+
+const toggleThinking = () => {
+  isThinking.value = !isThinking.value
 }
 
 const props = defineProps({
@@ -161,18 +173,21 @@ watch(props.docIds, (newVal) => {
   update_docs(newVal)
 })
 
-const update_docs = (docIds: string[]) => {
+const update_docs = (docIds: string[], show_files_window: boolean = false) => {
   Promise.all(docIds.map(async (item) => {
     const res = await get_doc_api(item)
     return res.data.data
   })).then(res => {
     files.value = res
     selectedFiles.value = files.value.filter(item => docIds.includes(item.docId))
+    if (show_files_window) {
+      show_files.value = true
+    }
   })
 }
 
 if (props.docIds.length > 0) {
-  update_docs(props.docIds)
+  update_docs(props.docIds, true)
 }
 
 // 监听标签变化
@@ -452,15 +467,7 @@ const sendQuestion = async () => {
     router.push('/auth/sign-in')
     return
   }
-  // 如果parseStatus为1，则不发送
-  if (selectedFiles.value.some(file => file.parseStatus === 1)) {
-    toast({
-      title: "无法发送",
-      description: "文件正在解析中，请等待上传完成",
-      variant: "destructive"
-    })
-    return
-  }
+
   // Get selected doc IDs
   docIdList.value = selectedFiles.value
         .filter(file => file.parseStatus === 2)
@@ -479,7 +486,8 @@ const sendQuestion = async () => {
       client: 0, // TODO: Add LLM selection if needed
       kb_ids: selectedKbs.value.map(kb => kb.id),
       if_search_online: isOnline.value,
-      search_type: searchType.value // 'all'：全网搜索，'academic'：学术搜索
+      search_type: searchType.value, // 'all'：全网搜索，'academic'：学术搜索
+      if_thinking: isThinking.value
     }
 
     // Send question API request
@@ -492,6 +500,7 @@ const sendQuestion = async () => {
       store.isOnline = isOnline.value
       store.searchType = searchType.value
       store.question = messageText.value
+      store.isThinking = isThinking.value
 
       // Clear state
       messageText.value = ''
@@ -523,6 +532,23 @@ const sendQuestion = async () => {
   }
 }
 
+const check_knowledge = async () => {
+  const params = {'folder_ids': []}
+  for (let i = 0; i < selectedKbs.value.length; i++) {
+    params.folder_ids.push(selectedKbs.value[i].id)
+  }
+  try {
+    const res = await check_folder_api(params)
+    if (res.data.success) {
+      return true
+    } else {
+      return false
+    }
+  } catch (err) {
+    return false
+  }
+}
+
 const handleSubmit = async () => {
   if (!messageText.value.trim()) return
   
@@ -530,9 +556,24 @@ const handleSubmit = async () => {
   
   try {
     // Check file upload status
-    const filesReady = checkFilesStatus()
-    if (!filesReady) {
-      isLoading.value = false
+    // 如果parseStatus为1，则不发送
+    if (selectedFiles.value.some(file => file.parseStatus === 1)) {
+      toast({
+        title: "无法发送",
+        description: "文件正在解析中，请等待上传完成",
+        variant: "destructive"
+      })
+      return
+    }
+
+    // 检查知识库是否都解析完成
+    const knowledge_parsed = await check_knowledge()
+    if (!knowledge_parsed) {
+      toast({
+        title: "无法发送",
+        description: "知识库解析中，请等待解析完成",
+        variant: "destructive"
+      })
       return
     }
 
@@ -580,21 +621,11 @@ const handleSubmit = async () => {
 
 const checkFilesStatus = () => {
   const uploading = files.value.some(f => f.parseStatus === 1)
-  const failed = files.value.some(f => f.parseStatus === 3)
-  
+
   if (uploading) {
     toast({
       title: "无法发送",
-      description: "文件正在上传中，请等待上传完成",
-      variant: "destructive"
-    })
-    return false
-  }
-  
-  if (failed) {
-    toast({
-      title: "无法发送", 
-      description: "部分文件上传失败，请重新上传",
+      description: "文件正在解析，请等待解析完成",
       variant: "destructive"
     })
     return false
@@ -619,6 +650,7 @@ const recover_params = (params: any) => {
   update_docs(store.docIdList)
   selectedKbs.value = store.selectedKbs
   searchType.value = store.searchType
+  isThinking.value = store.isThinking
   message_input_ref.value.searchTypeOwn = store.searchType
   isOnline.value = store.isOnline
 }
@@ -627,11 +659,46 @@ const close_isLoading = () => {
   isLoading.value = false
 }
 
+const clear_state = () => {
+  files.value = []
+  selectedFiles.value = []
+  selectedKbs.value = []
+  docIdList.value = []
+  messageText.value = ''
+  isLoading.value = false
+  isOnline.value = true
+  isThinking.value = true
+  searchType.value = 'all'
+  store.docIdList = []
+  store.selectedKbs = []
+  store.searchType = 'all'
+  store.isOnline = true
+  store.isThinking = true
+  store.question = ''
+}
+
 defineExpose({
   open_isLoading,
   close_isLoading,
-  recover_params
+  recover_params,
+  clear_state
 })
+
+// Add drag event handlers
+const handleDragOver = (e: DragEvent) => {
+  isDragging.value = true
+  e.dataTransfer!.dropEffect = 'copy'
+}
+
+const handleDragLeave = () => {
+  isDragging.value = false
+}
+
+const handleDrop = (e: DragEvent) => {
+  isDragging.value = false
+  const droppedFiles = Array.from(e.dataTransfer?.files || [])
+  handleFiles(droppedFiles)
+}
 
 </script>
 

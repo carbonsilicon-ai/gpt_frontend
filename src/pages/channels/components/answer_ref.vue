@@ -53,7 +53,7 @@
             {{ item.title }}
           </div>
           <Badge v-if="item.url" variant="secondary">{{ get_domain(item.url) }}</Badge>
-          <span v-if="item.published_time" class="text-muted-foreground">{{ get_time(item.published_time) }}</span>
+          <span v-if="item.published_time" class="text-muted-foreground text-xs">{{ get_time(item.published_time) }}</span>
         </div>
       </div>
     </div>

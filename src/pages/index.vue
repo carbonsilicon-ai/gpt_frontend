@@ -8,10 +8,23 @@ import GPT_Page from '@/components/Layout/GPT_Page.vue'
 import ask_main from '@/pages/ask/ask_main.vue'
 
 // import Loading from '@/components/Loading/index.vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
+
 const query = route.query
+// 如果route包含'#/activate_transit'
+if (route.fullPath?.includes('/#/activate_transit')) {
+  // 获取url中的参数
+  router.push('/auth/activate-transit?token=' + route.fullPath.split('token=')[1])
+}
+
+if (route.fullPath?.includes('/#/pswd_transit')) {
+  // 获取url中的参数
+  router.push('/auth/reset-password?token=' + route.fullPath.split('token=')[1])
+}
+
 
 const docIds = ref<string[]>([])
 

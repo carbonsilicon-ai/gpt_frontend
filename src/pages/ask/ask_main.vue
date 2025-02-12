@@ -15,7 +15,7 @@
             <!-- Moved ask_button here -->
             <div class="w-full mt-12">
               <div class="max-w-4xl mx-auto">
-                <ask_button :docIds="props.docIds" height="high"/>
+                <ask_button :docIds="props.docIds" height="high" ref="ask_button_ref"/>
               </div>
             </div>
 
@@ -81,5 +81,8 @@ const props = defineProps({
     default: () => []
   }
 })
+
+const ask_button_ref = ref(null)
+store.channel_id = ''
 
 </script>

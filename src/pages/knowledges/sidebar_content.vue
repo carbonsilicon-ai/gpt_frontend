@@ -98,7 +98,9 @@
             v-model="newFolderName"
             maxlength="20" 
             placeholder="请输入知识库名称" 
-            @keyup.enter="submitDatabase"
+            @keydown.enter.prevent="submitDatabase"
+            @compositionstart="isComposing = true"
+            @compositionend="isComposing = false"
           />
         </div>
       </div>
@@ -123,7 +125,9 @@
             v-model="editFolderName"
             maxlength="20" 
             placeholder="请输入知识库名称" 
-            @keyup.enter="submitEdit"
+            @keydown.enter.prevent="submitEdit"
+            @compositionstart="isComposing = true"
+            @compositionend="isComposing = false"
           />
         </div>
       </div>
@@ -244,7 +248,12 @@ const editFolder = (item: any, index: number) => {
   editFolderId.value = item.id
 }
 
+const isComposing = ref(false)
+
 const submitDatabase = async () => {
+  if (isComposing.value) {
+    return
+  }
   if (!newFolderName.value) {
     toast({
       variant: "destructive",
@@ -271,7 +280,7 @@ const submitDatabase = async () => {
     toast({
       variant: "destructive", 
       title: "错误",
-      description: "创建失败"
+      description: err.response?.data?.message || "创建失败"
     })
   } finally {
     btnLoading.value = false
@@ -279,6 +288,9 @@ const submitDatabase = async () => {
 }
 
 const submitEdit = async () => {
+  if (isComposing.value) {
+    return
+  }
   if (!editFolderName.value) {
     toast({
       variant: "destructive",

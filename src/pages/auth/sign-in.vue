@@ -104,7 +104,7 @@ const parse_err = (detail: any) => {
       ret = '账号或者密码错误'
     }
     if (detail.email[i] == 'User is not active') {
-      ret = '账号未激活'
+      ret = '账号未激活，请先前往邮箱激活账号'
     }
   }
   for (let i = 0; i < detail.password?.length; i++) {

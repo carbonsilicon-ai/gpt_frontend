@@ -184,7 +184,8 @@ interface questionListType {
   kb_ids: string[],
   question: string,
   search_type: string,
-  if_search_online: boolean
+  if_search_online: boolean,
+  if_thinking: boolean
 }
 
 defineProps<{
@@ -264,7 +265,8 @@ const get_questionlist = () => {
                 client: store.llm_select,
                 kb_ids: item?.kb_ids,
                 search_type: item?.search_type,
-                if_search_online: item?.if_search_online
+                if_search_online: item?.if_search_online,
+                if_thinking: item?.if_thinking
               }
             }
           })

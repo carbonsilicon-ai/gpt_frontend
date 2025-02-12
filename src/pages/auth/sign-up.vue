@@ -220,7 +220,7 @@ const onSubmit = handleSubmit(async (values) => {
     if (response.data.detail === 'ok' || response.data.success === true) {
       toast({
         title: "注册成功",
-        description: "请登录",
+        description: "邮箱注册用户请先登录邮箱激活账号，手机注册用户可直接登录",
       })
       setTimeout(() => {
         router.push('/auth/sign-in')

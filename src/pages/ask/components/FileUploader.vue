@@ -58,6 +58,47 @@
       </div>
     </TabsContent>
   </div>
+
+  <Dialog :open="showDialog" @update:open="showDialog = $event">
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>添加到知识库</DialogTitle>
+        <DialogDescription>
+          请选择要添加到的知识库
+        </DialogDescription>
+      </DialogHeader>
+      <div class="space-y-4">
+        <div class="space-y-2">
+          <Label>目标知识库</Label>
+          <Select v-model="moveTargetFolder">
+            <SelectTrigger>
+              <SelectValue placeholder="选择目标知识库" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem 
+                  v-for="folder in store.knowledge_folders" 
+                  :key="folder.id"
+                  :value="folder.id"
+                >
+                  {{ folder.name }}
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" @click="showDialog = false">取消</Button>
+          <Button 
+            :disabled="!moveTargetFolder || !current_move_id" 
+            @click="confirmMove"
+          >
+            确定
+          </Button>
+        </DialogFooter>
+      </div>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -68,9 +109,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { TabsContent } from '@/components/ui/tabs'
 import { add_doctokb_api } from '@/api/common.js'
 import { useToast } from '@/components/ui/toast'
+import { useStore } from '@/stores/index.js'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const { toast }= useToast()
-
+const store = useStore()
 interface FileItem {
   title: string
   size: number
@@ -97,6 +142,9 @@ const emit = defineEmits<{
   'update:files': [files: FileItem[]]
 }>()
 
+const showDialog = ref(false)
+const moveTargetFolder = ref('')
+
 const toggleFile = (checked: boolean, file: FileItem) => {
   const currentSelected = [...props.selectedFiles]
   if (props.selectedKbs.length > 0) {
@@ -104,6 +152,16 @@ const toggleFile = (checked: boolean, file: FileItem) => {
       title: '已经选择知识库，不能选择文件',
       variant: 'destructive',
     })
+    return
+  }
+  // 不能大于六个
+  if (currentSelected.length >= 6) {
+    toast({
+      title: '最多只能选择6个文件',
+      variant: 'destructive',
+    })
+    // 删除大于6个的文件
+    currentSelected.splice(6, currentSelected.length - 6)
     return
   }
   if (checked) {
@@ -117,22 +175,35 @@ const toggleFile = (checked: boolean, file: FileItem) => {
   emit('update:selectedFiles', currentSelected)
 }
 
-const add_to_kb = async (file: FileItem) => {
+const confirmMove = async () => {
+  const param = {
+    folder_id: moveTargetFolder.value,
+    docId: current_move_id.value
+  }
   try {
-    const res = await add_doctokb_api(file.docId)
-    console.log(res)
+    const res = await add_doctokb_api(param)
     toast({
       title: '添加成功',
       description: '文件已添加到知识库',
     })
+    showDialog.value = false
+    current_move_id.value = ''
+
   } catch (error) {
     console.error(error)
     toast({
       title: '添加失败',
-      description: '文件添加到知识库失败',
+      description: error.response?.data?.message || '文件添加到知识库失败',
       variant: 'destructive',
     })
   }
+}
+
+const current_move_id = ref('')
+const add_to_kb = async (file: FileItem) => {
+  // 打开对话框
+  showDialog.value = true
+  current_move_id.value = file.docId || ''
 }
 
 const open_file = (file: FileItem) => {

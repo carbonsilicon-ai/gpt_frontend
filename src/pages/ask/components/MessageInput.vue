@@ -14,10 +14,30 @@
       :disabled="isLoading"
     />
     <div class="flex items-center p-3 pt-0">
+      <TooltipProvider :delay-duration="300">
+        <Tooltip>
+          <TooltipTrigger as-child>
+            <Button
+              variant="ghost"
+              size="sm"
+              class="mr-2 gap-1.5"
+              :class="{'bg-blue-100': isThinking, 'hover:bg-blue-100': isThinking, 'bg-gray-100': !isThinking, 'hover:bg-gray-100': !isThinking}"
+              @click="$emit('toggle-thinking')"
+            >
+              <Brain class="size-4" />
+              深度思考
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            打开深度思考功能会调用DeepSeek R1模型推理解决问题
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
       <Button
         variant="ghost"
         size="sm"
-        :class="{'bg-blue-100': isOnline, 'bg-gray-100': !isOnline}"
+        :class="{'bg-blue-100': isOnline, 'hover:bg-blue-100': isOnline, 'bg-gray-100': !isOnline, 'hover:bg-gray-100': !isOnline}"
         @click="$emit('toggle-network')"
         class="mr-2 gap-1.5"
       >
@@ -37,7 +57,7 @@
       </Select>
 
       <div class="flex items-center gap-2 ml-auto">
-        <TooltipProvider>
+        <TooltipProvider :delay-duration="300">
           <Tooltip>
             <TooltipTrigger as-child>
               <Button 
@@ -50,7 +70,7 @@
                 <Paperclip class="size-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="top">
+            <TooltipContent side="bottom">
               支持拖拽上传PDF文件
             </TooltipContent>
           </Tooltip>
@@ -78,7 +98,7 @@ import { ref } from 'vue'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { Paperclip, CornerDownLeft, Wifi, WifiOff, X } from 'lucide-vue-next'
+import { Paperclip, CornerDownLeft, Wifi, WifiOff, X, Brain } from 'lucide-vue-next'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
@@ -86,6 +106,7 @@ const props = defineProps<{
   messageText: string
   isLoading: boolean
   isOnline: boolean
+  isThinking: boolean
   searchType: string
   height: string
 }>()
@@ -94,6 +115,7 @@ const emit = defineEmits<{
   'update:messageText': [value: string]
   'update:searchType': [value: string]
   'toggle-network': []
+  'toggle-thinking': []
   'file-upload': []
   'submit': []
   'stop': []
@@ -108,7 +130,7 @@ const handleKeyDown = (e: KeyboardEvent) => {
     e.preventDefault()
     emit('update:searchType', searchTypeOwn.value)
     emit('update:messageText', messageInput.value)
-    messageInput.value = ''
+    // messageInput.value = ''
     emit('submit')
   } else if (e.key === 'Enter' && e.ctrlKey) {
     e.preventDefault()
@@ -122,7 +144,7 @@ const handleButtonClick = () => {
   } else {
     emit('update:searchType', searchTypeOwn.value)
     emit('update:messageText', messageInput.value)
-    messageInput.value = ''
+    // messageInput.value = ''
     emit('submit')
   }
 }
@@ -138,6 +160,7 @@ const handlePaste = (e: ClipboardEvent) => {
 }
 
 defineExpose({
-  searchTypeOwn
+  searchTypeOwn,
+  messageInput
 })
 </script> 

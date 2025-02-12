@@ -89,9 +89,13 @@
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
-                          <div v-if="file.parseStatus === 1" class="flex items-center">
-                            <span class="text-xs text-gray-500">进度: {{ file.parse_progress }}%</span>
-                          </div>
+                          <Badge 
+                            v-if="file.parseStatus === 1" 
+                            class="text-xs"
+                            variant='secondary'
+                          >
+                            进度: {{ file.parse_progress }}%
+                          </Badge>
                           <Badge
                             v-else
                             class="text-sm"

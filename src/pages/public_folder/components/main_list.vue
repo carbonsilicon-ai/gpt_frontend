@@ -128,25 +128,25 @@
                   <TableCell class="py-3 text-gray-500">{{ new Date(file.createTime).toLocaleDateString() }}</TableCell>
                   <TableCell class="py-3">
                     <div class="flex space-x-1">
-                      <TooltipProvider>
+                      <TooltipProvider :delay-duration="300">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button variant="ghost" size="sm" class="hover:bg-gray-100" @click="move_doc(file.docId)">
                               <FolderInput class="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>移动</TooltipContent>
+                          <TooltipContent>添加到个人知识库</TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
 
-                      <TooltipProvider>
+                      <TooltipProvider :delay-duration="300">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button variant="ghost" size="sm" class="hover:bg-gray-100" @click="chat_doc(file.docId)">
-                              <Copy class="h-4 w-4" />
+                              <MessageSquarePlus class="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>拷贝</TooltipContent>
+                          <TooltipContent>直接添加至对话中</TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
                     </div>
@@ -235,7 +235,7 @@ import { copy_doc_api, get_doc_api, get_doc_in_folder_api, open_knowledge_api } 
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Search, FileText, FolderInput, Filter, Copy } from 'lucide-vue-next'
+import { Search, FileText, FolderInput, Filter, MessageSquarePlus } from 'lucide-vue-next'
 import { useToast } from '@/components/ui/toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
