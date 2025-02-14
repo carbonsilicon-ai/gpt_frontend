@@ -16,9 +16,9 @@
       <div class="flex justify-between items-center mt-4">
         <p class="text-sm text-gray-600">共{{ store.folder_file_count }}个文件</p>
         <div class="flex space-x-2">
-          <Button variant="outline" size="sm" disabled>
+          <!-- <Button variant="outline" size="sm" disabled>
             <Filter class="h-4 w-4" />
-          </Button>
+          </Button> -->
           <input
             type="file"
             ref="fileInput"

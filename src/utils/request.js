@@ -1,8 +1,11 @@
 import axios from 'axios'
-// import router from '../router'
+import router from '../router'
+// import { useRouter } from 'vue-router'
 import { useToast } from '@/components/ui/toast'
 
 let baseURL = ''
+// const router = useRouter()
+// const router = Vrouter
 
 export const getCookie = (name) => {
   const value = `; ${document.cookie}`;
@@ -54,6 +57,7 @@ instance.interceptors.response.use(
       } else {
         // console.log('您未登录，请先登录')
       }
+      router.push('/auth/sign-in')
     //   router.push({ name: 'signin' })
     }else if ([502, 404, 500, 401].includes(error.response.status)) {
       useToast().toast({

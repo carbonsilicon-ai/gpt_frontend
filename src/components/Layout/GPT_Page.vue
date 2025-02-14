@@ -19,6 +19,12 @@ const router = useRouter()
 const { toast } = useToast()
 const store = useStore()
 
+const if_ldap = ref(false)
+
+if (import.meta.env.VITE_APP_ENV === 'ldap') {
+  if_ldap.value = true
+}
+
 const props = defineProps<{
   isSidebarOpen: boolean
 }>()
@@ -137,7 +143,8 @@ const closeAlert = () => {
           @click="handleNavigation('/')"
           class="group cursor-pointer flex h-9 w-9 mb-8 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base p-1"
         >
-          <img src="@/assets/imgs/top_logo.png" alt="logo" class="w-full" />
+          <img v-if="if_ldap" src="@/assets/imgs/qilu_logo_white.png" alt="logo" class="w-full" />
+          <img v-else src="@/assets/imgs/top_logo.png" alt="logo" class="w-full" />
         </a>
 
         <TooltipProvider>
@@ -234,7 +241,7 @@ const closeAlert = () => {
             </div>
             <Separator class="my-2" />
             <div class="flex flex-col gap-1">
-              <Button variant="ghost" class="w-full justify-start gap-2" disabled>
+              <Button variant="ghost" class="w-full justify-start gap-2" disabled v-if="!if_ldap">
                 <Zap class="h-4 w-4 text-muted-foreground" />
                 升级到Pro
               </Button>

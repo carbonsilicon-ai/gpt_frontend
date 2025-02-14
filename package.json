@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "dev": "vite",
+    "dev:ldap": "vite --mode ldap",
     "build": "vite build --mode production",
     "build:dev": "vite build --mode development",
     "build:ldap": "vite build --mode ldap",
@@ -43,6 +44,7 @@
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "lucide-vue-next": "^0.471.0",
+    "markdown-it-code-copy": "^0.2.1",
     "nprogress": "^0.2.0",
     "pinia": "^2.3.0",
     "pinia-plugin-persistedstate": "^4.2.0",

@@ -20,9 +20,14 @@ import { toTypedSchema } from '@vee-validate/zod'
 
 const formSchema = toTypedSchema(z.object({
   email: z.string()
-    .min(1, { message: '请输入邮箱或手机号' })
-    .refine((val) => isEmail(val) || isMobile(val), {
-      message: '请输入正确的邮箱或手机号'
+    .min(1, { message: '请输入用户名' })
+    .superRefine((val, ctx) => {
+      if (!if_ldap.value && !(isEmail(val) || isMobile(val))) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: '请输入正确的邮箱或手机号'
+        })
+      }
     }),
   password: z.string()
     .min(1, { message: '请输入密码' })
@@ -180,14 +185,16 @@ const onSubmit = handleSubmit(async (values) => {
   <div class="flex items-center justify-center min-h-screen p-4 min-w-screen">
     <main class="flex flex-col gap-4">
       <AuthTitle />
-      <Card class="w-full max-w-sm">
+      <Card class="w-full max-w-sm w-[330px]">
         <CardHeader>
           <CardTitle class="text-2xl">
             登录
           </CardTitle>
           <CardDescription>
-            Drugflow账户可直接登录。还没有账号？
+            <span v-if="if_ldap">齐鲁账户可直接登录</span>
+            <span v-else>Drugflow账户可直接登录。还没有账号？</span>
             <Button
+              v-if="!if_ldap"
               variant="link" class="px-0 font-medium text-primary"
               @click="$router.push('/auth/sign-up')"
             >
@@ -203,12 +210,15 @@ const onSubmit = handleSubmit(async (values) => {
               :validate-on-blur="!isFieldDirty"
             >
               <FormItem>
-                <FormLabel>邮箱/手机号</FormLabel>
+                <FormLabel>
+                  <span v-if="if_ldap">用户名</span>
+                  <span v-else>邮箱/手机号</span>
+                </FormLabel>
                 <FormControl>
                   <Input 
                     v-bind="componentField"
                     type="text" 
-                    placeholder="m@example.com/137****2121" 
+                    :placeholder="if_ldap ? 'my username' : 'm@example.com/137****2121'" 
                   />
                 </FormControl>
                 <FormMessage />
@@ -223,7 +233,7 @@ const onSubmit = handleSubmit(async (values) => {
               <FormItem>
                 <div class="flex items-center justify-between">
                   <FormLabel>密码</FormLabel>
-                  <ToForgotPasswordLink />
+                  <ToForgotPasswordLink v-if="!if_ldap" />
                 </div>
                 <FormControl>
                   <Input 
@@ -240,12 +250,12 @@ const onSubmit = handleSubmit(async (values) => {
               提交
             </Button>
 
-            <CardDescription>
+            <!-- <CardDescription>
               点击登录即表示您同意我们的
               <TermsOfServiceButton />
               和
               <PrivacyPolicyButton />
-            </CardDescription>
+            </CardDescription> -->
           </form>
         </CardContent>
       </Card>

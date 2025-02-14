@@ -5,7 +5,7 @@
       <div class="max-w-4xl mx-auto">
         <div class="text-[#162448]">
           <div class="flex flex-col items-center">
-            <div v-if="store.if_ldap" class="mt-2 text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <div v-if="if_ldap" class="mt-2 text-6xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               齐鲁大脑
             </div>
             <div v-else class="mt-2 text-7xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -84,5 +84,11 @@ const props = defineProps({
 
 const ask_button_ref = ref(null)
 store.channel_id = ''
+
+const if_ldap = ref(false)
+
+if (import.meta.env.VITE_APP_ENV === 'ldap') {
+  if_ldap.value = true
+}
 
 </script>

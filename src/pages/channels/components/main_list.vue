@@ -18,7 +18,8 @@
             <a
               class="group flex h-9 w-9 mb-8 shrink-0 items-center justify-center gap-2 rounded-lg bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base p-1"
             >
-              <img src="@/assets/imgs/top_logo.png" alt="logo" class="w-full" />
+              <img v-if="if_ldap" src="@/assets/imgs/qilu_logo_white.png" alt="logo" class="w-full" />
+              <img v-else src="@/assets/imgs/top_logo.png" alt="logo" class="w-full" />
             </a>
             <Card class="max-w-[calc(100%-3rem)] shadow-sm hover:shadow-md transition-shadow">
               <CardContent class="px-5 py-0">
@@ -141,6 +142,13 @@ import { getCookie } from '@/utils/request.js'
 import ask_append from './ask_append.vue'
 import answer_ref from './answer_ref.vue'
 import thinking_card from './thinking_card.vue'
+import markdownitCodeCopy from 'markdown-it-code-copy'
+
+const if_ldap = ref(false)
+
+if (import.meta.env.VITE_APP_ENV === 'ldap') {
+  if_ldap.value = true
+}
 
 const { toast } = useToast()
 
@@ -167,6 +175,16 @@ marked.use(markdownitExternalLink, {
 });
 
 marked.use(mk);
+marked.use(markdownitCodeCopy, {
+  element: '<svg fill="currentColor" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M878.272 981.312H375.36a104.64 104.64 0 0 1-104.64-104.64V375.36c0-57.792 46.848-104.64 104.64-104.64h502.912c57.792 0 104.64 46.848 104.64 104.64v502.912c-1.6 56.192-48.448 103.04-104.64 103.04z m-502.912-616.96a10.688 10.688 0 0 0-10.944 11.008v502.912c0 6.208 4.672 10.88 10.88 10.88h502.976c6.208 0 10.88-4.672 10.88-10.88V375.36a10.688 10.688 0 0 0-10.88-10.944H375.36z"></path><path d="M192.64 753.28h-45.312a104.64 104.64 0 0 1-104.64-104.64V147.328c0-57.792 46.848-104.64 104.64-104.64h502.912c57.792 0 104.64 46.848 104.64 104.64v49.92a46.016 46.016 0 0 1-46.848 46.912 46.08 46.08 0 0 1-46.848-46.848v-49.984a10.688 10.688 0 0 0-10.944-10.944H147.328a10.688 10.688 0 0 0-10.944 10.88v502.976c0 6.208 4.672 10.88 10.88 10.88h45.312a46.08 46.08 0 0 1 46.848 46.912c0 26.496-21.824 45.248-46.848 45.248z"></path></svg>',
+  // onSuccess toast
+  onSuccess: () => {
+    toast({
+      title: '复制成功',
+      description: '已复制到剪贴板',
+    })
+  }
+});
 
 const store = useStore()
 
@@ -639,5 +657,46 @@ defineExpose({
 <style>
 .katex-html {
   display: none;
+}
+
+/* Add styles for code copy button */
+.markdown-it-code-copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.875rem;
+  color: white;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  background-color: #374151;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.markdown-it-code-copy span {
+  opacity: 0.75!important;
+}
+
+/* Show button on hover */
+.prose div:hover > .markdown-it-code-copy {
+  opacity: 1;
+}
+
+.markdown-it-code-copy:hover {
+  /* 鼠标悬停时，按钮背景色为浅黑色*/
+  background-color: #222;
+}
+
+/* Style for copied state */
+.markdown-it-code-copy.success {
+  color: #059669;
+  background-color: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+/* Ensure code blocks have relative positioning */
+.prose pre {
+  position: relative;
 }
 </style>

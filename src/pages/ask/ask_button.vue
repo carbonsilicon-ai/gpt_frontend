@@ -103,6 +103,8 @@ import MessageInput from './components/MessageInput.vue'
 import UploadDialog from './components/UploadDialog.vue'
 import SelectedItems from './components/SelectedItems.vue'
 import get_channel_docs from './components/get_channel_docs.vue'
+import { getCookie } from '@/utils/request.js'
+
 interface FileItem {
   title: string
   size: number
@@ -320,7 +322,8 @@ const handleFiles = async (newFiles: File[]) => {
       xhr.onerror = () => reject(new Error('Upload failed'))
 
       xhr.open('POST', '/api/v1/knowledge_base/upload?folder_id=folder_for_question_channel')  // 请替换为实际的上传 API 地址
-      xhr.setRequestHeader('Authorization', `Bearer ${store.token}`)  // 如果需要认证
+      // xhr.setRequestHeader('Authorization', `Bearer ${store.token}`)  // 如果需要认证
+      xhr.setRequestHeader('X-CSRF-TOKEN', getCookie('csrf_access_token'))
       xhr.send(formData)
     })
 
@@ -594,6 +597,7 @@ const handleSubmit = async () => {
     
     // Clear input
     messageText.value = ''
+    message_input_ref.value.messageInput = ''
     // 判断当前route是否是/channels
     if (router.currentRoute.value.path !== '/channels') {
       router.push(

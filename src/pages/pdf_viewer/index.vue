@@ -23,7 +23,7 @@
          <div class="w-1/2 h-full overflow-auto">
             <div class="flex justify-between items-center p-2 border-b">
                <h2 class="text-lg font-semibold">解析结果</h2>
-               <Button variant="default" size="sm" @click="translate_markdown">
+               <Button variant="default" size="sm" @click="translate_markdown" disabled>
                   {{ show_ori_markdown ? '点击翻译' : '返回原文' }}
                </Button>
             </div>
