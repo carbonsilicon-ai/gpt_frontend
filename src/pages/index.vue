@@ -6,6 +6,7 @@
 <script setup lang="ts">
 import GPT_Page from '@/components/Layout/GPT_Page.vue'
 import ask_main from '@/pages/ask/ask_main.vue'
+import { count_visit_api } from '@/api/common.js'
 
 // import Loading from '@/components/Loading/index.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -35,6 +36,8 @@ if (query.docIds) {
     docIds.value = [query.docIds]
   }
 }
+
+count_visit_api()
 
 // const router = useRouter()
 // router.push({ name: 'dashboard' })
