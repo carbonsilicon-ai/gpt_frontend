@@ -25,6 +25,7 @@
               <CardContent class="px-5 py-0">
                 <answer_ref :item_data="item" />
                 <thinking_card :item_data="item" />
+                <mol_card :item_data="item" />
                 <div class="prose max-w-none dark:prose-invert prose-pre:bg-gray-700 prose-pre:border prose-pre:border-border prose-pre:rounded-lg 
                             prose-table:border prose-table:border-collapse prose-td:border prose-td:border-border prose-td:p-2
                             prose-th:border prose-th:border-border prose-th:p-2 prose-th:bg-muted/50
@@ -143,6 +144,7 @@ import ask_append from './ask_append.vue'
 import answer_ref from './answer_ref.vue'
 import thinking_card from './thinking_card.vue'
 import markdownitCodeCopy from 'markdown-it-code-copy'
+import mol_card from './mol_card.vue'
 
 const if_ldap = ref(false)
 

@@ -198,3 +198,7 @@ export function get_queue_info(question_id) {
 export function translate_content_api(params) {
   return request.post('/api/v1/knowledge_base/translate', params)
 }
+
+export function draw_svg_api(params) {
+  return request.post('/api/v1/mol/draw_svg', params)
+}

@@ -23,6 +23,7 @@ declare module 'vue' {
     LayoutHeader: typeof import('./../components/Layout/Header.vue')['default']
     LayoutPage: typeof import('./../components/Layout/Page.vue')['default']
     Loading: typeof import('./../components/Loading/index.vue')['default']
+    MoleculeSvg_box: typeof import('./../components/molecule/svg_box.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchCommandChangeTheme: typeof import('./../components/Search/CommandChangeTheme.vue')['default']

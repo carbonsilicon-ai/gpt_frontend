@@ -13,14 +13,14 @@
             </div>
 
             <!-- Moved ask_button here -->
-            <div class="w-full mt-12">
+            <div class="w-full mt-8">
               <div class="max-w-4xl mx-auto">
                 <ask_button :docIds="props.docIds" height="high" ref="ask_button_ref"/>
               </div>
             </div>
 
             <!-- 试试这么问 -->
-            <!-- <div class="w-full mt-8">
+            <div class="w-full mt-8">
               <div class="max-w-4xl mx-auto">
                 <div class="text-sm font-medium text-muted-foreground mb-3">试试这么问</div>
                 <div class="flex flex-wrap gap-4">   
@@ -42,11 +42,21 @@
                   </Card>
                   <Card 
                     @click="show_question('请介绍知识库中肽-HLA结合预测文章中使用的模型架构，并比较性能')"
-                    class="shadow-sm hover:shadow-md transition-shadow duration-200 rounded-xl p-2 text-sm text-muted-foreground cursor-pointer hover:bg-accent/50">
-                    <div class="flex items-center gap-2">
-                      <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
-                      请介绍知识库中肽-HLA结合预测文章中使用的模型架构，并比较性能
-                    </div>
+                    class="shadow-sm hover:shadow-md transition-shadow duration-200 rounded-xl p-2 text-sm text-muted-foreground cursor-pointer hover:bg-accent/50"
+                  >
+                    <TooltipProvider :delay-duration="100">
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                            请介绍知识库中肽-HLA结合预测文章中使用的模型架构，并比较性能
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                          <p>请选择您自己的知识库</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </Card>
                 </div>
               </div>
@@ -55,9 +65,9 @@
               <div class="max-w-4xl mx-auto">
                 <div class="text-sm font-medium text-muted-foreground mb-3">产品特点</div>
               </div>
-            </div> -->
+            </div>
             <!-- Cards moved below the button -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mt-12 w-full max-w-4xl">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 w-full max-w-4xl">
               <Card class="rounded-2xl shadow-none">
                 <CardContent class="pt-6">
                   <div class="w-[64px] h-[64px] bg-accent rounded-xl p-2">
@@ -109,6 +119,12 @@ import { Card, CardContent } from '@/components/ui/card'
 import ask_button from '@/pages/ask/ask_button.vue'
 import { useStore } from '@/stores/index.js'
 import avatar from '@/pages/ask/components/avatar.vue'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 const store = useStore()
 
