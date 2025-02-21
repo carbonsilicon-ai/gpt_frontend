@@ -19,8 +19,45 @@
               </div>
             </div>
 
+            <!-- 试试这么问 -->
+            <!-- <div class="w-full mt-8">
+              <div class="max-w-4xl mx-auto">
+                <div class="text-sm font-medium text-muted-foreground mb-3">试试这么问</div>
+                <div class="flex flex-wrap gap-4">   
+                  <Card 
+                    @click="ask_question('列举C1CC(C=O)CC(C)C1的所有admet属性')"
+                    class="shadow-sm hover:shadow-md transition-shadow duration-200 rounded-xl p-2 text-sm text-muted-foreground cursor-pointer hover:bg-accent/50">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                      列举C1CC(C=O)CC(C)C1的所有admet属性
+                    </div>
+                  </Card>
+                  <Card 
+                    @click="ask_question('CC(=O)NC1=CC(OC)=C(O)C=C1这个分子是否已经存在专利')"
+                    class="shadow-sm hover:shadow-md transition-shadow duration-200 rounded-xl p-2 text-sm text-muted-foreground cursor-pointer hover:bg-accent/50">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                      CC(=O)NC1=CC(OC)=C(O)C=C1这个分子是否已经存在专利
+                    </div>
+                  </Card>
+                  <Card 
+                    @click="show_question('请介绍知识库中肽-HLA结合预测文章中使用的模型架构，并比较性能')"
+                    class="shadow-sm hover:shadow-md transition-shadow duration-200 rounded-xl p-2 text-sm text-muted-foreground cursor-pointer hover:bg-accent/50">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                      请介绍知识库中肽-HLA结合预测文章中使用的模型架构，并比较性能
+                    </div>
+                  </Card>
+                </div>
+              </div>
+            </div>
+            <div class="w-full mt-8">
+              <div class="max-w-4xl mx-auto">
+                <div class="text-sm font-medium text-muted-foreground mb-3">产品特点</div>
+              </div>
+            </div> -->
             <!-- Cards moved below the button -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mt-8 w-full max-w-4xl">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 mt-12 w-full max-w-4xl">
               <Card class="rounded-2xl shadow-none">
                 <CardContent class="pt-6">
                   <div class="w-[64px] h-[64px] bg-accent rounded-xl p-2">
@@ -89,6 +126,14 @@ const if_ldap = ref(false)
 
 if (import.meta.env.VITE_APP_ENV === 'ldap') {
   if_ldap.value = true
+}
+
+const ask_question = (question: string) => {
+  ask_button_ref.value?.ask_question(question)
+}
+
+const show_question = (question: string) => {
+  ask_button_ref.value?.show_question(question)
 }
 
 </script>

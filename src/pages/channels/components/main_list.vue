@@ -453,6 +453,8 @@ const process_content = (content: string) => {
   if (content == null) {
     return ''
   } 
+  // 去掉<not_show>和</not_show>之间的内容
+  content = content.replace(/<not_show>.*?<\/not_show>/g, '')
   if (content.split(split_var).length > 2) {
     const tmp = transfer_citation(content.split(split_var)[1], content.split(split_var)[2])
     if (tmp.split('</thinking>').length == 2) {

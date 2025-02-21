@@ -586,7 +586,14 @@ const get_doc_in_folder = async () => {
         const pollTimer = setInterval(async () => {
           const pollRes = await get_doc_in_folder_api(param) as ApiResponse
           if (pollRes.data.success && pollRes.data.data) {
-            files_list.value = pollRes.data.data.items
+            files_list.value.forEach(file => {
+              const pollFile = pollRes.data.data.items.find(f => f.docId === file.docId)
+              if (pollFile) {
+                file.parseStatus = pollFile.parseStatus
+                file.parse_progress = pollFile.parse_progress
+                file.progress_texts = pollFile.progress_texts
+              }
+            })
             // 检查是否还有正在解析的文件
             const stillParsing = pollRes.data.data.items.some(file => file.parseStatus === 1)
             if (!stillParsing) {

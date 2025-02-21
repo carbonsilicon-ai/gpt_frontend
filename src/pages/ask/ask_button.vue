@@ -650,6 +650,7 @@ const open_isLoading = () => {
 }
 
 const message_input_ref = ref(null)
+
 const recover_params = (params: any) => {
   update_docs(store.docIdList)
   selectedKbs.value = store.selectedKbs
@@ -657,6 +658,16 @@ const recover_params = (params: any) => {
   isThinking.value = store.isThinking
   message_input_ref.value.searchTypeOwn = store.searchType
   isOnline.value = store.isOnline
+}
+
+const ask_question = (question: string) => {
+  messageText.value = question
+  handleSubmit()
+}
+
+const show_question = (question: string) => {
+  messageText.value = question
+  message_input_ref.value.messageInput = question
 }
 
 const close_isLoading = () => {
@@ -685,7 +696,9 @@ defineExpose({
   open_isLoading,
   close_isLoading,
   recover_params,
-  clear_state
+  clear_state,
+  ask_question,
+  show_question
 })
 
 // Add drag event handlers
