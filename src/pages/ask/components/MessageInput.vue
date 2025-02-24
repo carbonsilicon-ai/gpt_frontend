@@ -90,7 +90,7 @@
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              支持拖拽上传PDF文件
+              支持拖拽上传PDF文件和图片（jpg、jpeg、png）
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

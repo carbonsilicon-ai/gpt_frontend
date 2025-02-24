@@ -74,7 +74,7 @@
         type="file"
         ref="fileInput"
         class="hidden"
-        accept=".pdf"
+        accept=".pdf,.jpg,.jpeg,.png"
         multiple
         @change="onFileSelected"
       />
@@ -96,7 +96,7 @@
         <DialogTitle>化学编辑器</DialogTitle>
         <DialogDescription>请在化学编辑器中绘制化学结构，点击确定后SMILES将自动填充到输入框中</DialogDescription>
       </DialogHeader>
-      <iframe class="frame" id="idKetcher" src="./static/file/remote/index.html?api_path=/v2" width="800" height="500" />
+      <iframe class="frame" id="idKetcher" src="./static/file/standalone/index.html" width="800" height="500" />
       <div class="flex justify-end gap-4 mt-4">
         <button 
           class="px-4 py-2 text-sm rounded-md border hover:bg-gray-100"
@@ -267,10 +267,10 @@ const handleFiles = async (newFiles: File[]) => {
   // Validate all files first
   for (const file of newFiles) {
     // Check file type
-    if (file.type !== 'application/pdf') {
+    if (!['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
       toast({
         title: "上传失败",
-        description: "仅支持PDF文件格式",
+        description: "仅支持PDF、JPEG、JPG、PNG文件格式",
         variant: "destructive"
       })
       continue
@@ -764,11 +764,6 @@ const handleDrop = (e: DragEvent) => {
   isDragging.value = false
   const droppedFiles = Array.from(e.dataTransfer?.files || [])
   handleFiles(droppedFiles)
-}
-
-const handleChemicalConfirm = () => {
-  // TODO: 处理化学编辑器的确认逻辑
-  showChemicalEditor.value = false
 }
 
 </script>

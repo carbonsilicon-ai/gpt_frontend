@@ -103,8 +103,11 @@ const process_item = (content: string | undefined) => {
   return []
 }
 
-const download_pdf = (item: any) => {
-  const url = window.location.origin + '/pdf_viewer?docId=' + item.docId
+const download_pdf = (file: any) => {
+  let url = window.location.origin + '/pdf_viewer?docId=' + file.docId
+  if (file.type === 3 || file.title.split('.').pop() === 'jpg' || file.title.split('.').pop() === 'jpeg' || file.title.split('.').pop() === 'png') {
+    url += '&if_img=true'
+  }
   window.open(url, '_blank');
 }
 

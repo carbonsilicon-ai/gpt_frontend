@@ -1,6 +1,12 @@
 <template>
    <GPT_Page>
-      <div class="h-[100vh] w-[calc(100vw-3.5rem)] flex">
+      <!-- 显示图片 -->
+      <div v-if="own_img" class="h-[100vh] w-[calc(100vw-3.5rem)] flex">
+         <img :src="own_img" class="w-full h-full object-contain" />
+      </div>
+
+      <!-- 显示pdf -->
+      <div v-else class="h-[100vh] w-[calc(100vw-3.5rem)] flex">
          <div class="w-1/2 h-full overflow-auto">
             <div v-if="pdfLoading" class="h-full flex items-center justify-center">
                <div class="flex flex-col items-center gap-2">
@@ -17,9 +23,9 @@
                   </Button>
                </div>
             </div>
-            <VuePdfEmbed v-else :source="onw_doc" v-if="onw_doc" />
+            <VuePdfEmbed v-else :source="own_doc" v-if="own_doc" />
          </div>
-         <div class="w-1 h-full bg-gray-200 cursor-col-resize" @mousedown="startResize"></div>
+         <div class="w-1 h-full bg-gray-200 cursor-col-resize"></div>
          <div class="w-1/2 h-full overflow-auto">
             <div class="flex justify-between items-center p-2 border-b">
                <h2 class="text-lg font-semibold">解析结果</h2>
@@ -51,6 +57,8 @@
             </div>
          </div>
       </div>
+
+
    </GPT_Page>
 </template>
 
@@ -69,6 +77,8 @@ import { Button } from '@/components/ui/button'
 
 const route = useRoute()
 const docId = route.query.docId
+const if_img = route.query?.if_img
+const own_img = ref(null)
 
 const markdown_content = ref('## 这里是Markdown解析器\n\n文档仍在解析中，请在解析完成后查看结果')
 const { toast } = useToast()
@@ -112,7 +122,7 @@ const get_markdown = () => {
       markdownLoading.value = false
     })
 }
-const onw_doc = ref(null)
+const own_doc = ref(null)
 
 const download_pdf = () => {
   pdfLoading.value = true
@@ -120,17 +130,25 @@ const download_pdf = () => {
 
   open_knowledge_api(docId as string)
     .then(res => {
+      if (if_img) {
+        // Handle image file
+        const blob = new Blob([res.data], { type: "image/jpeg" }) // or appropriate image type
+        own_img.value = window.URL.createObjectURL(blob)
+        return
+      }
+      // Handle PDF file
       const blob = new Blob([res.data], { type: "application/pdf" })
       const file = new File([blob], 'pdf.pdf', { type: blob.type })
+      
       const base64 = window.URL.createObjectURL(file)
       const { doc } = useVuePdfEmbed({ source: base64 })
-      onw_doc.value = doc
+      own_doc.value = doc
     })
     .catch(() => {
       pdfError.value = true
       toast({
         title: "Error",
-        description: "PDF 下载失败",
+        description: "下载失败",
       })
     })
     .finally(() => {

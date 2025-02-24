@@ -12,7 +12,8 @@
             <TooltipTrigger class="w-full">
               <div class="border rounded-md flex items-center gap-2 p-2 rounded-md bg-background hover:bg-accent">
                 
-                <img src="@/assets/imgs/pdf_large.png" alt="file" class="w-5 h-6" />
+                <img v-if="item.data.type === 1 || item.data.title.split('.').pop() === 'pdf'" src="@/assets/imgs/pdf_large.png" alt="file" class="w-5 h-6" />
+                <Image v-else-if="item.data.type === 3 || item.data.title.split('.').pop() === 'jpg' || item.data.title.split('.').pop() === 'jpeg' || item.data.title.split('.').pop() === 'png'" alt="file" class="w-5 h-6 text-blue-500" />
                 
                 <div class="flex flex-col overflow-hidden">
                   <span class="text-sm truncate">{{ item.data.alias || item.data.title }}</span>
@@ -68,7 +69,7 @@
 import { ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { ChevronDown, ChevronUp } from 'lucide-vue-next'
+import { ChevronDown, ChevronUp, Image } from 'lucide-vue-next'
 import { get_doc_api, get_kb_api } from '@/api/common.js'
 import { FileText, Globe, Folder } from 'lucide-vue-next'
 const props = defineProps<{
@@ -88,7 +89,10 @@ const open_url = (item: any) => {
 }
 
 const download_pdf = (item: any) => {
-  const url = window.location.origin + '/pdf_viewer?docId=' + item.data.docId
+  let url = window.location.origin + '/pdf_viewer?docId=' + item.data.docId
+  if (item.data.type === 3 || item.data.title.split('.').pop() === 'jpg' || item.data.title.split('.').pop() === 'jpeg' || item.data.title.split('.').pop() === 'png') {
+    url += '&if_img=true'
+  }
   window.open(url, '_blank')
 }
 

@@ -13,7 +13,8 @@
             :checked="selectedFiles.some(f => f.title === file.title)"
             @update:checked="(checked) => toggleFile(checked, file)"
           />
-          <img src="@/assets/imgs/pdf_large.png" alt="file" class="w-5 h-6" />
+          <img v-if="file.type === 1 || file.title.split('.').pop() === 'pdf'" src="@/assets/imgs/pdf_large.png" alt="file" class="w-5 h-6" />
+          <Image v-else-if="file.type === 3 || file.title.split('.').pop() === 'jpg' || file.title.split('.').pop() === 'jpeg' || file.title.split('.').pop() === 'png'" alt="file" class="w-5 h-6 text-blue-500" />
           
           <div class="flex-1 min-w-0">
             <div class="truncate text-xs cursor-pointer" @click="open_file(file)">{{ file.title }}</div>
@@ -104,7 +105,7 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Plus, X } from 'lucide-vue-next'
+import { Plus, X, Image } from 'lucide-vue-next'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { TabsContent } from '@/components/ui/tabs'
 import { add_doctokb_api } from '@/api/common.js'
@@ -125,6 +126,7 @@ interface FileItem {
   raw?: File
   docId?: string
   timer?: any
+  type?: number
 }
 
 interface KnowledgeBase {
@@ -207,7 +209,10 @@ const add_to_kb = async (file: FileItem) => {
 }
 
 const open_file = (file: FileItem) => {
-  const url = window.location.origin + '/pdf_viewer?docId=' + file.docId
+  let url = window.location.origin + '/pdf_viewer?docId=' + file.docId
+  if (file.type === 3 || file.title.split('.').pop() === 'jpg' || file.title.split('.').pop() === 'jpeg' || file.title.split('.').pop() === 'png') {
+    url += '&if_img=true'
+  }
   window.open(url, '_blank');
 }
 </script> 
