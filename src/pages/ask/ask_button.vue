@@ -92,7 +92,11 @@
   <!-- 化学编辑器 -->
   <Dialog v-model:open="showChemicalEditor">
     <DialogContent class="max-w-[860px]">
-      <iframe class="frame" id="idKetcher" src="./static/file/remote/index.html?api_path=/v2" width="800" height="600" />
+      <DialogHeader>
+        <DialogTitle>化学编辑器</DialogTitle>
+        <DialogDescription>请在化学编辑器中绘制化学结构，点击确定后SMILES将自动填充到输入框中</DialogDescription>
+      </DialogHeader>
+      <iframe class="frame" id="idKetcher" src="./static/file/remote/index.html?api_path=/v2" width="800" height="500" />
       <div class="flex justify-end gap-4 mt-4">
         <button 
           class="px-4 py-2 text-sm rounded-md border hover:bg-gray-100"
@@ -117,7 +121,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/components/ui/toast'
 import { useStore } from '@/stores/index.js'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader } from '@/components/ui/dialog'
 import { upload_knowledge_api, check_folder_api, create_channel_api, create_gpt_question_api, get_doc_api } from '@/api/common.js'
 
 import FileUploader from './components/FileUploader.vue'
