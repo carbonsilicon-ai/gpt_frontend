@@ -104,11 +104,13 @@ const mol_data = computed(() => {
   }
 })
 
-const router = useRouter()
 const downloadMolecule = (mol_id: string) => {
-  const base_url = router.currentRoute.value.path
+  let base_url = window.location.origin
+  if (base_url.includes('localhost')) {
+    base_url = 'https://inplat.drugflow.com'
+  }
   const url = `${base_url}/api/v1/mol/download_mol_info?mol_id=${mol_id}`
-  console.log(url)
+  console.log(base_url, url)
   // 创建a标签
   const a = document.createElement('a')
   a.href = url

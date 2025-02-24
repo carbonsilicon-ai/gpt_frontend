@@ -66,6 +66,7 @@
         @toggle-network="toggleNetwork"
         @toggle-thinking="toggleThinking"
         @file-upload="handleFileUpload"
+        @chemical-editor="showChemicalEditor = true"
       />
 
       <!-- Hidden file input -->
@@ -87,6 +88,27 @@
     </div>
   </Tabs>
   <get_channel_docs v-model:files="files" />
+
+  <!-- 化学编辑器 -->
+  <Dialog v-model:open="showChemicalEditor">
+    <DialogContent class="max-w-[860px]">
+      <iframe class="frame" id="idKetcher" src="./static/file/remote/index.html?api_path=/v2" width="800" height="600" />
+      <div class="flex justify-end gap-4 mt-4">
+        <button 
+          class="px-4 py-2 text-sm rounded-md border hover:bg-gray-100"
+          @click="showChemicalEditor = false"
+        >
+          取消
+        </button>
+        <button 
+          class="px-4 py-2 text-sm text-white bg-primary rounded-md hover:bg-primary/90"
+          @click="getsmiles()"
+        >
+          确定
+        </button>
+      </div>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -95,6 +117,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/components/ui/toast'
 import { useStore } from '@/stores/index.js'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { upload_knowledge_api, check_folder_api, create_channel_api, create_gpt_question_api, get_doc_api } from '@/api/common.js'
 
 import FileUploader from './components/FileUploader.vue'
@@ -104,6 +127,7 @@ import UploadDialog from './components/UploadDialog.vue'
 import SelectedItems from './components/SelectedItems.vue'
 import get_channel_docs from './components/get_channel_docs.vue'
 import { getCookie } from '@/utils/request.js'
+import { init_ketcher_module } from './components/utils.js'
 
 interface FileItem {
   title: string
@@ -144,6 +168,7 @@ const uploadingFiles = ref<FileItem[]>([])
 const currentTab = ref('files')
 const isThinking = ref(true)
 const isDragging = ref(false)
+const showChemicalEditor = ref(false)
 
 const totalProgress = computed(() => {
   if (uploadingFiles.value.length === 0) return 0
@@ -692,6 +717,26 @@ const clear_state = () => {
   store.question = ''
 }
 
+const getsmiles = async() => {
+  await init_ketcher_module('idKetcher')
+  console.log('ketcher', window.ketcher)
+  window.ketcher.getSmiles()
+    .then((res:String) => {
+      console.log('ketcher', res)
+      messageText.value = res
+      message_input_ref.value.messageInput = res
+      showChemicalEditor.value = false
+    })
+    .catch(e => {
+      console.log('ketcher error', e)
+      toast({
+        title: "获取SMILES失败",
+        description: "获取SMILES失败" + e,
+        variant: "destructive"
+      })
+    })
+}
+
 defineExpose({
   open_isLoading,
   close_isLoading,
@@ -715,6 +760,11 @@ const handleDrop = (e: DragEvent) => {
   isDragging.value = false
   const droppedFiles = Array.from(e.dataTransfer?.files || [])
   handleFiles(droppedFiles)
+}
+
+const handleChemicalConfirm = () => {
+  // TODO: 处理化学编辑器的确认逻辑
+  showChemicalEditor.value = false
 }
 
 </script>

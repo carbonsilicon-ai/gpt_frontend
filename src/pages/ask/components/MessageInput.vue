@@ -57,7 +57,26 @@
       </Select>
 
       <div class="flex items-center gap-2 ml-auto">
-        <TooltipProvider :delay-duration="300">
+        <!-- 增加化学编辑器的按钮，点击后打开化学编辑器 -->
+        <TooltipProvider :delay-duration="100">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                @click="$emit('chemical-editor')" 
+                class="gap-1.5"
+              >
+                <Atom class="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              化学编辑器
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider :delay-duration="100">
           <Tooltip>
             <TooltipTrigger as-child>
               <Button 
@@ -98,7 +117,7 @@ import { ref } from 'vue'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { Paperclip, CornerDownLeft, Wifi, WifiOff, X, Brain } from 'lucide-vue-next'
+import { Paperclip, CornerDownLeft, Wifi, WifiOff, X, Brain, Atom } from 'lucide-vue-next'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
@@ -119,6 +138,7 @@ const emit = defineEmits<{
   'file-upload': []
   'submit': []
   'stop': []
+  'chemical-editor': []
 }>()
 
 const messageInput = ref('')

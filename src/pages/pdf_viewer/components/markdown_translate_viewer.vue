@@ -7,8 +7,7 @@
   ></div>
   <!-- 显示按钮 翻译中或者翻译更多 -->
   <div class="flex justify-center mb-2">
-    <Button size="sm" v-if="is_translating" @click="translate_content_continue">翻译中...</Button>
-    <Button size="sm" v-else @click="translate_content_continue">{{ end_translating ? '翻译完成' : '翻译更多' }}</Button>
+    <Button size="sm" v-if="!is_translating && !end_translating" @click="translate_content_continue">翻译更多</Button>
   </div>
 </template>
 
@@ -70,44 +69,72 @@ namespace Content {
   export interface Content {
     content: string
     translate_content: string
+    context: string
+    index: number
   }
 }
 const content_list = ref<Content.Content[]>([])
 // 将content按照500个字分成多个字符串
 const split_content = () => {
   const content = props.content
-  // Split content by newlines
   const lines = content.split('\n')
   
   let currentChunk = ''
   let currentWordCount = 0
+  let previousContext = ''
+  let inTable = false
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
+    // Check if we're entering or leaving a table
+    if (line.trim().startsWith('|')) {
+      inTable = true
+    } else if (inTable && !line.trim().startsWith('|')) {
+      inTable = false
+    }
+    
     const wordCount = line.trim().split(/\s+/).length
     
-    if (currentWordCount + wordCount > 700) {
-      // Current chunk would exceed max, push it and start new chunk
+    // If in table, keep adding lines until table ends
+    if (inTable) {
+      currentChunk += (currentChunk ? '\n' : '') + line
+      currentWordCount += wordCount
+      continue
+    }
+
+    // Check if line ends with sentence-ending punctuation
+    const isCompleteSentence = /[.!?。！？]$/.test(line.trim())
+    
+    if (currentWordCount + wordCount > 700 && isCompleteSentence) {
+      // Only split at complete sentences
       if (currentChunk) {
         content_list.value.push({
           content: currentChunk.trim(),
-          translate_content: ''
+          translate_content: '',
+          context: previousContext.slice(-128),
+          index: content_list.value.length
         })
       }
+      previousContext = currentChunk
       currentChunk = line
       currentWordCount = wordCount
-    } else if (currentWordCount + wordCount < 400 || currentChunk === '') {
-      // Add to current chunk if under min or empty
+    } else {
+      // Keep building current chunk
       currentChunk += (currentChunk ? '\n' : '') + line
       currentWordCount += wordCount
-    } else {
-      // Between 400-700 words, push chunk and start new
-      content_list.value.push({
-        content: currentChunk.trim(),
-        translate_content: ''
-      })
-      currentChunk = line
-      currentWordCount = wordCount
+      
+      // If we're over 400 words and hit a sentence end, consider splitting
+      if (currentWordCount > 400 && isCompleteSentence && !inTable) {
+        content_list.value.push({
+          content: currentChunk.trim(),
+          translate_content: '',
+          context: previousContext.slice(-128),
+          index: content_list.value.length
+        })
+        previousContext = currentChunk
+        currentChunk = ''
+        currentWordCount = 0
+      }
     }
   }
 
@@ -115,7 +142,9 @@ const split_content = () => {
   if (currentChunk) {
     content_list.value.push({
       content: currentChunk.trim(), 
-      translate_content: ''
+      translate_content: '',
+      context: previousContext.slice(-128),
+      index: content_list.value.length
     })
   }
 }
@@ -138,7 +167,8 @@ const translate_content_continue = async () => {
     // 并行翻译这3个内容
     await Promise.all(batch.map(async (item) => {
       // TODO: 调用翻译API
-      const res = await translate_content_api({ content: item.content })
+      item.translate_content = '\n\n第' + (item.index + 1) + '部分内容正在翻译中...\n\n\n\n'
+      const res = await translate_content_api({ content: item.content, context: item.context })
       item.translate_content = process_translate_content(res.data.translate_content)
 
     }))
