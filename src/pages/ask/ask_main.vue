@@ -20,7 +20,7 @@
             </div>
 
             <!-- 试试这么问 -->
-            <div class="w-full mt-8">
+            <div class="w-full mt-8" v-if="!if_ldap">
               <div class="max-w-4xl mx-auto">
                 <div class="text-sm font-medium text-muted-foreground mb-3">试试这么问</div>
                 <div class="flex flex-wrap gap-4">   

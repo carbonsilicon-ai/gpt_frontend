@@ -259,7 +259,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { get_doc_in_folder_api, upload_knowledge_api, delete_knowledge_api, move_doc_api } from '@/api/common.js'
 import { useStore } from '@/stores/index.js'
 import { storeToRefs } from 'pinia'
@@ -332,6 +332,7 @@ const showMoveDialog = ref(false)
 const moveTargetFolder = ref('')
 const moveLoading = ref(false)
 const docToMove = ref('')
+const pollTimer = ref<ReturnType<typeof setInterval> | null>(null)
 
 const openMoveDialog = (docId: string) => {
   docToMove.value = docId
@@ -418,6 +419,12 @@ const confirmDelete = async () => {
 const clean_files_list = () => {
   doc_size.value = 10
   doc_count.value = 0
+
+  // Clear the polling timer if it exists
+  if (pollTimer.value) {
+    clearInterval(pollTimer.value)
+    pollTimer.value = null
+  }
 
   files_list.value.forEach(file => {
     if (file.timer) {
@@ -563,6 +570,12 @@ interface ApiResponse {
 }
 
 const get_doc_in_folder = async () => {
+  // Clear any existing poll timer first
+  if (pollTimer.value) {
+    clearInterval(pollTimer.value)
+    pollTimer.value = null
+  }
+
   loading.value = true
   try {
     const param = {
@@ -582,8 +595,8 @@ const get_doc_in_folder = async () => {
       // 检查是否有正在解析的文件
       const hasParsingFiles = files_list.value.some(file => file.parseStatus === 1)
       if (hasParsingFiles) {
-        // 启动轮询
-        const pollTimer = setInterval(async () => {
+        // 启动轮询并存储计时器引用
+        pollTimer.value = setInterval(async () => {
           const pollRes = await get_doc_in_folder_api(param) as ApiResponse
           if (pollRes.data.success && pollRes.data.data) {
             files_list.value.forEach(file => {
@@ -598,7 +611,8 @@ const get_doc_in_folder = async () => {
             const stillParsing = pollRes.data.data.items.some(file => file.parseStatus === 1)
             if (!stillParsing) {
               // 如果没有正在解析的文件，停止轮询
-              clearInterval(pollTimer)
+              clearInterval(pollTimer.value)
+              pollTimer.value = null
             }
           }
         }, 2000) // 每2秒轮询一次
@@ -631,6 +645,20 @@ watch(folder_id, (newVal) => {
 
 onMounted(() => {
   get_doc_in_folder()
+})
+
+// Clean up interval when component is unmounted
+onUnmounted(() => {
+  if (pollTimer.value) {
+    clearInterval(pollTimer.value)
+    pollTimer.value = null
+  }
+  
+  files_list.value.forEach(file => {
+    if (file.timer) {
+      clearInterval(file.timer)
+    }
+  })
 })
 
 const handleDragOver = (e: DragEvent) => {

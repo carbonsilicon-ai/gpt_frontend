@@ -14,7 +14,11 @@
             @update:checked="(checked) => toggleFile(checked, file)"
           />
           <img v-if="file.type === 1 || file.title.split('.').pop() === 'pdf'" src="@/assets/imgs/pdf_large.png" alt="file" class="w-5 h-6" />
-          <Image v-else-if="file.type === 3 || file.title.split('.').pop() === 'jpg' || file.title.split('.').pop() === 'jpeg' || file.title.split('.').pop() === 'png'" alt="file" class="w-5 h-6 text-blue-500" />
+          <Image v-else-if="!file.img_id && (file.type === 3 || file.title.split('.').pop() === 'jpg' || file.title.split('.').pop() === 'jpeg' || file.title.split('.').pop() === 'png')" alt="file" class="w-5 h-6 text-blue-500" />
+          <div v-else-if="file.img_id && !imageBase64Map[file.img_id]" class="w-12 h-12 flex items-center justify-center">
+            <div class="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
+          </div>
+          <img v-else-if="file.img_id" :src="imageBase64Map[file.img_id]" alt="wait" class="w-12" />
           
           <div class="flex-1 min-w-0">
             <div class="truncate text-xs cursor-pointer" @click="open_file(file)">{{ file.title }}</div>
@@ -108,7 +112,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Plus, X, Image } from 'lucide-vue-next'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { TabsContent } from '@/components/ui/tabs'
-import { add_doctokb_api } from '@/api/common.js'
+import { add_doctokb_api, getimgbase64_api } from '@/api/common.js'
 import { useToast } from '@/components/ui/toast'
 import { useStore } from '@/stores/index.js'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -127,6 +131,7 @@ interface FileItem {
   docId?: string
   timer?: any
   type?: number
+  img_id?: string
 }
 
 interface KnowledgeBase {
@@ -146,6 +151,8 @@ const emit = defineEmits<{
 
 const showDialog = ref(false)
 const moveTargetFolder = ref('')
+
+const imageBase64Map = ref<Record<string, string>>({})
 
 const toggleFile = (checked: boolean, file: FileItem) => {
   const currentSelected = [...props.selectedFiles]
@@ -215,4 +222,25 @@ const open_file = (file: FileItem) => {
   }
   window.open(url, '_blank');
 }
+
+const get_img_base64 = async (img_id: string) => {
+  if (!imageBase64Map.value[img_id]) {
+    try {
+      const res = await getimgbase64_api(img_id)
+      imageBase64Map.value[img_id] = 'data:image/png;base64,' + res.data.data.img_base64
+    } catch (error) {
+      console.error('Failed to load image:', error)
+    }
+  }
+  return imageBase64Map.value[img_id]
+}
+
+// Add a watcher to load images when files change
+watch(() => props.files, (newFiles) => {
+  newFiles.forEach(file => {
+    if (file.img_id) {
+      get_img_base64(file.img_id)
+    }
+  })
+}, { immediate: true, deep: true })
 </script> 

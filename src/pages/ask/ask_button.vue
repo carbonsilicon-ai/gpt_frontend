@@ -66,6 +66,7 @@
         @toggle-network="toggleNetwork"
         @toggle-thinking="toggleThinking"
         @file-upload="handleFileUpload"
+        @file-pasted="handlePastedFile"
         @chemical-editor="showChemicalEditor = true"
       />
 
@@ -96,7 +97,22 @@
         <DialogTitle>化学编辑器</DialogTitle>
         <DialogDescription>请在化学编辑器中绘制化学结构，点击确定后SMILES将自动填充到输入框中</DialogDescription>
       </DialogHeader>
-      <iframe class="frame" id="idKetcher" src="./static/file/standalone/index.html" width="800" height="500" />
+      <div class="relative">
+        <div v-if="isIframeLoading" class="absolute inset-0 flex items-center justify-center bg-background">
+          <div class="flex flex-col items-center gap-2">
+            <div class="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+            <p class="text-sm text-muted-foreground">加载中...</p>
+          </div>
+        </div>
+        <iframe 
+          class="frame" 
+          id="idKetcher" 
+          src="./static/file/standalone/index.html" 
+          width="800" 
+          height="500" 
+          @load="isIframeLoading = false"
+        />
+      </div>
       <div class="flex justify-end gap-4 mt-4">
         <button 
           class="px-4 py-2 text-sm rounded-md border hover:bg-gray-100"
@@ -116,13 +132,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useToast } from '@/components/ui/toast'
 import { useStore } from '@/stores/index.js'
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogHeader } from '@/components/ui/dialog'
-import { upload_knowledge_api, check_folder_api, create_channel_api, create_gpt_question_api, get_doc_api } from '@/api/common.js'
+import { upload_knowledge_api, getimgbase64_api, check_folder_api, create_channel_api, create_gpt_question_api, get_doc_api } from '@/api/common.js'
 
 import FileUploader from './components/FileUploader.vue'
 import KnowledgeSelector from './components/KnowledgeSelector.vue'
@@ -143,6 +159,8 @@ interface FileItem {
   raw?: File
   docId?: string
   timer?: any
+  img_base64?: string
+  img_id?: string
 }
 
 interface KnowledgeBase {
@@ -173,6 +191,7 @@ const currentTab = ref('files')
 const isThinking = ref(true)
 const isDragging = ref(false)
 const showChemicalEditor = ref(false)
+const isIframeLoading = ref(true)
 
 const totalProgress = computed(() => {
   if (uploadingFiles.value.length === 0) return 0
@@ -434,6 +453,9 @@ const watch_status = (datalist:any) => {
         it.parseStatus = doc_res.data.data.parseStatus
         it.progress_texts = doc_res.data.data.progress_texts
         it.parse_progress = doc_res.data.data.parse_progress
+        if (doc_res.data.data?.img_id) {
+          it.img_id = doc_res.data.data.img_id
+        }
         if (doc_res.data.data.parseStatus != 1) {
           clearInterval(it.timer)
           it.timer =null
@@ -764,6 +786,21 @@ const handleDrop = (e: DragEvent) => {
   isDragging.value = false
   const droppedFiles = Array.from(e.dataTransfer?.files || [])
   handleFiles(droppedFiles)
+}
+
+// Add this function before component is unmounted
+onBeforeUnmount(() => {
+  // Clear all active timers
+  files.value.forEach(file => {
+    if (file.timer) {
+      clearInterval(file.timer)
+      file.timer = null
+    }
+  })
+})
+
+const handlePastedFile = (file: File) => {
+  handleFiles([file])
 }
 
 </script>

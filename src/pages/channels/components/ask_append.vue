@@ -13,7 +13,11 @@
               <div class="border rounded-md flex items-center gap-2 p-2 rounded-md bg-background hover:bg-accent">
                 
                 <img v-if="item.data.type === 1 || item.data.title.split('.').pop() === 'pdf'" src="@/assets/imgs/pdf_large.png" alt="file" class="w-5 h-6" />
-                <Image v-else-if="item.data.type === 3 || item.data.title.split('.').pop() === 'jpg' || item.data.title.split('.').pop() === 'jpeg' || item.data.title.split('.').pop() === 'png'" alt="file" class="w-5 h-6 text-blue-500" />
+                <Image v-else-if="!item.data.img_id && (item.data.type === 3 || item.data.title.split('.').pop() === 'jpg' || item.data.title.split('.').pop() === 'jpeg' || item.data.title.split('.').pop() === 'png')" alt="file" class="w-5 h-6 text-blue-500" />
+                <div v-else-if="item.data.img_id && !imageBase64Map[item.data.img_id]" class="w-24 h-12 flex items-center justify-center">
+                  <div class="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full"></div>
+                </div>
+                <img v-else-if="item.data.img_id" :src="imageBase64Map[item.data.img_id]" alt="file" class="w-24" />
                 
                 <div class="flex flex-col overflow-hidden">
                   <span class="text-sm truncate">{{ item.data.alias || item.data.title }}</span>
@@ -70,7 +74,7 @@ import { ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ChevronDown, ChevronUp, Image } from 'lucide-vue-next'
-import { get_doc_api, get_kb_api } from '@/api/common.js'
+import { get_doc_api, get_kb_api, getimgbase64_api } from '@/api/common.js'
 import { FileText, Globe, Folder } from 'lucide-vue-next'
 const props = defineProps<{
   item_data: {
@@ -83,6 +87,8 @@ const doc_status = ref(true)
 const doc_num = ref(6)
 const files_list = ref([])
 const kb_list = ref([])
+const imageBase64Map = ref<Record<string, string>>({})
+
 
 const open_url = (item: any) => {
   window.open(item.data.title, '_blank')
@@ -106,12 +112,29 @@ const change_doc_status = () => {
   }
 }
 
+const get_img_base64 = async (img_id: string) => {
+  if (!imageBase64Map.value[img_id]) {
+    try {
+      const res = await getimgbase64_api(img_id)
+      imageBase64Map.value[img_id] = 'data:image/png;base64,' + res.data.data.img_base64
+    } catch (error) {
+      console.error('Failed to load image:', error)
+    }
+  }
+  return imageBase64Map.value[img_id]
+}
+
 const get_data = () => {
   Promise.all(props.item_data.docIdList.map(async (item) => {
     const res = await get_doc_api(item)
     return res.data
   })).then(res => {
     files_list.value = res
+    res.forEach(item => {
+      if (item.data?.img_id) {
+        get_img_base64(item.data.img_id)
+      }
+    })
   })
 
   Promise.all(props.item_data.kb_ids.map(async (item) => {

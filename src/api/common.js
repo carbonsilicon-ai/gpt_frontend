@@ -202,3 +202,7 @@ export function translate_content_api(params) {
 export function draw_svg_api(params) {
   return request.post('/api/v1/mol/draw_svg', params)
 }
+
+export function getimgbase64_api(img_id) {
+  return request.get('/api/v1/knowledge_base/get_img/' + img_id)
+}

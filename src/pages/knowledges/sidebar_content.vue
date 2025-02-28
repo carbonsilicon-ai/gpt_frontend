@@ -32,7 +32,7 @@
               </div>
               <div class="flex items-center space-x-1.5">
                 <Files class="h-3.5 w-3.5" />
-                <span>{{ item.docs.length }}/50</span>
+                <span>{{ item.count }}/50</span>
               </div>
             </div>
           </div>
@@ -232,7 +232,7 @@ const setDefaultFolder = () => {
     if(defaultFolder){
       store.folder_id = defaultFolder.id
       store.folder_name = defaultFolder.name
-      store.folder_file_count = defaultFolder.docs.length
+      store.folder_file_count = defaultFolder.count
     }
   }
 }
@@ -345,7 +345,7 @@ const deleteFolder = async (id: string, index: number) => {
 const goFolderList = (item: any) => {
   store.folder_id = item.id
   store.folder_name = item.name
-  store.folder_file_count = item.docs.length
+  store.folder_file_count = item.count
   // TODO: 路由跳转
   // 改写route的query
   const path = `/knowledges?folder_id=${store.folder_id}&folder_name=${encodeURIComponent(store.folder_name)}`

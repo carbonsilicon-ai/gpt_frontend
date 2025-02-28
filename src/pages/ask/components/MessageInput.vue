@@ -58,7 +58,7 @@
 
       <div class="flex items-center gap-2 ml-auto">
         <!-- 增加化学编辑器的按钮，点击后打开化学编辑器 -->
-        <TooltipProvider :delay-duration="100">
+        <TooltipProvider :delay-duration="100" v-if="!if_ldap">
           <Tooltip>
             <TooltipTrigger as-child>
               <Button 
@@ -90,7 +90,7 @@
               </Button>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              支持拖拽上传PDF文件和图片（jpg、jpeg、png）
+              支持拖拽上传PDF,图片文件
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -139,7 +139,13 @@ const emit = defineEmits<{
   'submit': []
   'stop': []
   'chemical-editor': []
+  'file-pasted': [file: File]
 }>()
+
+const if_ldap = ref(false)
+if (import.meta.env.VITE_APP_ENV === 'ldap') {
+  if_ldap.value = true
+}
 
 const messageInput = ref('')
 const isComposing = ref(false)
@@ -170,6 +176,22 @@ const handleButtonClick = () => {
 }
 
 const handlePaste = (e: ClipboardEvent) => {
+  // Check if clipboard has images
+  if (e.clipboardData?.items) {
+    for (const item of Array.from(e.clipboardData.items)) {
+      if (item.type.startsWith('image/')) {
+        e.preventDefault()
+        const file = item.getAsFile()
+        if (file) {
+          // Emit event to parent component to handle the image
+          emit('file-pasted', file)
+          return
+        }
+      }
+    }
+  }
+
+  // Handle text paste as before
   const text = e.clipboardData?.getData('text/plain') || ''
   const cleanedText = text.replace(/<[^>]*>?/gm, '')
   const target = e.target as HTMLTextAreaElement
